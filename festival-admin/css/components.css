@@ -1,0 +1,42 @@
+/* css/components.css */
+
+/* 버튼 공통 */
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 반응형 테이블 컨테이너: 모바일에서 가로 스크롤 허용 */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* 너무 좁아지지 않게 방어 */
+}
+
+.data-table th, .data-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* 관리 버튼 스타일 */
+.btn-edit { color: #2ecc71; border: none; background: none; cursor: pointer; margin-right: 10px; }
+.btn-delete { color: #e74c3c; border: none; background: none; cursor: pointer; }
