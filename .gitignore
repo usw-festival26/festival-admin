@@ -5,3 +5,7 @@ dist/
 .env.*.local
 *.log
 .DS_Store
+*.tsbuildinfo
+.cache
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
