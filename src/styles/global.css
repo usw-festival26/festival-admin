@@ -1,10 +1,19 @@
 :root {
   --gray-bg: #E0E0E0;
   --sidebar-color: #D9D9D9;
+  --color-divider: #dbdbdb;
+  --color-search-bg: #f1f1f5;
+  --color-search-placeholder: #767676;
+  --color-muted: #7d7d7d;
+  --color-error-bg: #ffbebe;
+  --color-error-border: #ff6060;
+  --color-error-text: #f81919;
+  --font-pretendard: 'Pretendard', sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Pretendard', sans-serif; overflow: hidden; }
+body { font-family: var(--font-pretendard); }
 
 /* 화면 전체 레이아웃 */
 .admin-wrapper {
@@ -127,20 +136,86 @@ body { font-family: 'Pretendard', sans-serif; overflow: hidden; }
 /* 로그인 화면 */
 .login-container {
   flex: 1;
+  padding: 80px 60px 60px;
+  display: block;
+}
+.login-box { width: 100%; max-width: 960px; }
+.login-box h1 {
+  font-family: var(--font-pretendard);
+  font-weight: 900;
+  font-size: 36px;
+  color: #000;
+  margin-bottom: 16px;
+}
+.login-subtext {
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-bottom: 40px;
+}
+.login-container .form-group { margin-bottom: 28px; }
+.login-container .form-group label {
+  font-family: var(--font-pretendard);
+  font-weight: 900;
+  font-size: 22px;
+  color: #000;
+  margin-bottom: 14px;
+}
+.login-container .form-group input {
+  width: 100%;
+  height: 50px;
+  border: 1px solid #000;
+  border-radius: 15px;
+  padding: 0 22px;
+  font-size: 13px;
+  font-family: var(--font-pretendard);
+  color: #000;
+  outline: none;
+  background: #fff;
+}
+.login-container .form-group input::placeholder {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+.login-error {
+  margin-top: 12px;
+  width: 100%;
+  min-height: 50px;
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+  font-size: 12px;
+  color: var(--color-error-text);
+}
+.login-btn-wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding-bottom: 100px;
+  margin-top: 30px;
 }
-.login-box { width: 100%; max-width: 480px; }
-.login-box h1 { font-size: 36px; font-weight: 800; margin-bottom: 10px; }
-.login-subtext { font-size: 14px; color: #888; margin-bottom: 50px; }
-.login-btn-wrapper { display: flex; justify-content: center; margin-top: 50px; }
-.login-btn-wrapper .btn-black {
-  width: 85px;
-  height: 42px;
+.login-submit {
+  background: #000;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 12px 28px;
   border-radius: 12px;
-  font-size: 14px;
+  font-family: var(--font-pretendard);
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: -0.09px;
+  line-height: 1.45;
+}
+.login-close {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #000;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
 }
 
 /* 버튼 공통 */
@@ -306,5 +381,116 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 .modal-form { display: flex; flex-direction: column; }
 
+/* 대시보드 상단 우측 링크 (탑바 아래) */
+.dashboard-login-link {
+  display: flex;
+  justify-content: flex-end;
+  padding: 20px 40px 0;
+}
+.dashboard-login-link a {
+  font-family: var(--font-pretendard);
+  font-weight: 400;
+  font-size: 18px;
+  color: #000;
+  letter-spacing: -0.45px;
+  text-decoration: none;
+}
+
+/* 탑바 로고 (태블릿/모바일에서 사이드바 대체) */
+.topbar-logo {
+  display: none;
+  font-family: var(--font-roboto);
+  font-weight: 900;
+  font-size: 20px;
+  color: #000;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+.top-bar-left { display: flex; align-items: center; flex: 1; min-width: 0; }
+
+/* 모바일 전용 타이틀 줄바꿈 도우미 */
+.br-mobile { display: none; }
+
 /* 유틸 */
 .hidden { display: none !important; }
+
+/* 반응형 */
+@media (max-width: 1023px) {
+  body { overflow: auto; }
+  .admin-wrapper { display: block; height: auto; min-height: 100vh; }
+  .sidebar { display: none; }
+  .main-content { height: auto; }
+  .topbar-logo { display: block; }
+  .top-bar { padding: 0 24px; gap: 16px; }
+  .search-box { flex: 1; }
+  .search-box input { width: 100%; max-width: 601px; }
+  .dashboard-body { padding: 24px; }
+  .login-container { padding: 40px 38px; }
+  .login-box { max-width: 720px; }
+}
+
+@media (max-width: 767px) {
+  .top-bar { height: 64px; padding: 0 16px; gap: 8px; }
+  .topbar-logo { font-size: 18px; margin-right: 8px; }
+  .search-box { display: none; }
+  .top-bar-right { gap: 8px; }
+  .profile-icon { width: 30px; height: 30px; }
+  .profile-icon svg { width: 30px; height: 30px; }
+
+  .dashboard-login-link { padding: 16px 16px 0; }
+  .dashboard-login-link a { font-size: 16px; }
+
+  .dashboard-body { padding: 16px; }
+  .hero-section { margin-top: 24px; margin-bottom: 32px; }
+  .hero-section h1 { font-size: 36px; line-height: 1.2; }
+  .hero-title span { display: block; }
+  .hero-section p {
+    font-size: 18px;
+    margin-top: 24px;
+    max-width: 283px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .br-mobile { display: block; }
+
+  .content-display { gap: 24px; }
+  .poster-placeholder {
+    width: min(321px, 82vw);
+    height: auto;
+    aspect-ratio: 321 / 353;
+    font-size: 16px;
+  }
+
+  /* 로그인 — 모바일 */
+  .login-container {
+    padding: 24px 24px 120px;
+    min-height: calc(100vh - 64px);
+    position: relative;
+  }
+  .login-box { max-width: 100%; }
+  .login-box h1 { font-size: 32px; margin-bottom: 12px; }
+  .login-container .form-group label { font-size: 20px; }
+  .login-container .form-group input { height: 50px; }
+  .login-btn-wrapper {
+    position: fixed;
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    margin-top: 0;
+  }
+  .login-submit {
+    width: 100%;
+    height: 50px;
+    padding: 0;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .login-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* 로그인 페이지에서는 프로필/로그인 링크 대신 X close 버튼 */
+  .page-login .profile-icon,
+  .page-login .user-util { display: none; }
+}
