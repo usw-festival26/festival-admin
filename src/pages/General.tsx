@@ -255,7 +255,7 @@ export default function General() {
               {editingNotice ? '수정하기' : '등록하기'}
             </button>
             {editingNotice && (
-              <button type="button" className="btn-outline" onClick={handleNoticeDelete}>
+              <button type="button" className="btn-outline btn-outline--lg" onClick={handleNoticeDelete}>
                 삭제
               </button>
             )}

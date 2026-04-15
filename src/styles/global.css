@@ -29,7 +29,7 @@ body { font-family: var(--font-pretendard); }
   padding: 40px 20px;
   flex-shrink: 0;
 }
-.logo { font-family: 'Roboto', sans-serif; font-weight: 900; font-size: 20px; margin-bottom: 80px; text-align: center; letter-spacing: 0; }
+.logo { display: block; font-family: 'Roboto', sans-serif; font-weight: 900; font-size: 20px; margin-bottom: 80px; text-align: center; letter-spacing: 0; color: #000; text-decoration: none; cursor: pointer; }
 .menu-list { list-style: none; }
 .menu-list li { margin-bottom: 35px; padding-left: 20px; }
 .menu-list li a { text-decoration: none; color: #000; font-weight: 700; font-size: 15px; }
@@ -74,6 +74,24 @@ body { font-family: var(--font-pretendard); }
   outline: none;
 }
 .search-box input::placeholder { color: #767676; }
+
+/* 탑바 인증 링크 (아이콘 + 텍스트) */
+.topbar-auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-pretendard);
+  font-weight: 400;
+  font-size: 18px;
+  color: #000;
+  letter-spacing: -0.45px;
+  text-decoration: none;
+}
+.topbar-auth:hover { opacity: 0.7; }
 
 /* 프로필 아이콘 */
 .profile-icon {
@@ -137,9 +155,11 @@ body { font-family: var(--font-pretendard); }
 .login-container {
   flex: 1;
   padding: 80px 60px 60px;
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
-.login-box { width: 100%; max-width: 960px; }
+.login-box { width: 100%; max-width: 960px; margin: 0 auto; }
 .login-box h1 {
   font-family: var(--font-pretendard);
   font-weight: 900;
@@ -248,6 +268,13 @@ body { font-family: var(--font-pretendard); }
   font-weight: 700;
   cursor: pointer;
 }
+.btn-outline--lg {
+  width: 140px;
+  height: 48px;
+  padding: 0;
+  border-radius: 12px;
+  font-weight: 600;
+}
 .btn-outline-round {
   padding: 10px 30px;
   border: 1.5px solid #000;
@@ -332,12 +359,12 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: #000; cursor: 
 .event-text { display: flex; flex-direction: column; gap: 4px; }
 
 /* 토글 스위치 */
-.switch { position: relative; display: inline-block; width: 40px; height: 22px; margin-left: 10px; }
+.switch { position: relative; display: inline-block; width: 52px; height: 28px; margin-left: 10px; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
 input:checked + .slider { background-color: #000; }
-input:checked + .slider:before { transform: translateX(18px); }
+input:checked + .slider:before { transform: translateX(24px); }
 
 /* 이벤트 */
 .img-placeholder-small { width: 60px; height: 60px; background-color: #D9D9D9; border-radius: 10px; }
@@ -396,6 +423,9 @@ input:checked + .slider:before { transform: translateX(18px); }
   text-decoration: none;
 }
 
+/* 로그인 페이지에서는 TopBar 인증 링크 숨김 (순환 방지) */
+.page-login .topbar-auth { display: none; }
+
 /* 탑바 로고 (태블릿/모바일에서 사이드바 대체) */
 .topbar-logo {
   display: none;
@@ -405,6 +435,8 @@ input:checked + .slider:before { transform: translateX(18px); }
   color: #000;
   margin-right: 20px;
   flex-shrink: 0;
+  text-decoration: none;
+  cursor: pointer;
 }
 .top-bar-left { display: flex; align-items: center; flex: 1; min-width: 0; }
 

@@ -7,13 +7,19 @@ export default function Login() {
   const [username, setUsername] = useState('')
   const [pw, setPw] = useState('')
   const [error, setError] = useState(false)
-  const { login } = useAuth()
+  const { login, isLoggedIn, userRole } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
     document.body.classList.add('page-login')
     return () => document.body.classList.remove('page-login')
   }, [])
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate(userRole === 'booth' ? '/booth' : '/general', { replace: true })
+    }
+  }, [isLoggedIn, userRole, navigate])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -33,16 +39,6 @@ export default function Login() {
     <Layout>
       <section className="login-container">
         <div className="login-box">
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button
-              type="button"
-              className="login-close"
-              aria-label="닫기"
-              onClick={() => navigate('/')}
-            >
-              ×
-            </button>
-          </div>
           <h1>로그인</h1>
           <p className="login-subtext">로그인 정보를 입력해주세요</p>
           <form onSubmit={handleSubmit} noValidate>

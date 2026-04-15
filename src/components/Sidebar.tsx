@@ -1,8 +1,10 @@
+import { Link } from 'react-router-dom'
+
 export default function Sidebar() {
   return (
     <nav className="sidebar">
       <div className="sidebar-header">
-        <div className="logo">LOGO</div>
+        <Link to="/" className="logo">LOGO</Link>
       </div>
     </nav>
   )

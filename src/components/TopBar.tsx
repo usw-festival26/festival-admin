@@ -1,3 +1,6 @@
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+
 function ProfileIcon() {
   return (
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="프로필">
@@ -11,18 +14,34 @@ function ProfileIcon() {
 }
 
 export default function TopBar() {
+  const { isLoggedIn, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/', { replace: true })
+  }
+
   return (
     <header className="top-bar">
       <div className="top-bar-left">
-        <div className="topbar-logo">LOGO</div>
+        <Link to="/" className="topbar-logo">LOGO</Link>
         <div className="search-box">
           <input type="text" placeholder="검색어를 입력해주세요" />
         </div>
       </div>
       <div className="top-bar-right">
-        <div className="profile-icon">
-          <ProfileIcon />
-        </div>
+        {isLoggedIn ? (
+          <button type="button" className="topbar-auth" onClick={handleLogout}>
+            <span className="profile-icon"><ProfileIcon /></span>
+            <span>로그아웃</span>
+          </button>
+        ) : (
+          <Link to="/" className="topbar-auth">
+            <span className="profile-icon"><ProfileIcon /></span>
+            <span>로그인</span>
+          </Link>
+        )}
       </div>
     </header>
   )
