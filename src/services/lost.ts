@@ -1,14 +1,62 @@
 import api from './api'
+import { USE_MOCK } from './env'
+import {
+  mockCreateLostItem,
+  mockGetLostItemDetail,
+  mockGetLostItems,
+  mockUpdateLostItemStatus,
+} from './__mocks__/lost'
 
-export interface LostItem {
-  id: number
+export type LostItemStatus = 'STORED' | 'CLAIMED' | string
+
+export interface LostItemSummary {
+  lostItemId: number
   name: string
-  info: string
-  collected: boolean
+  storageLocation?: string
+  status: LostItemStatus
+  imageUrl?: string
 }
 
-// TODO: 실제 엔드포인트로 교체
-export const getLostItems = () => api.get<LostItem[]>('/lost-items')
-export const createLostItem = (data: Omit<LostItem, 'id'>) => api.post<LostItem>('/lost-items', data)
-export const updateLostItem = (id: number, data: Partial<LostItem>) => api.patch<LostItem>(`/lost-items/${id}`, data)
-export const deleteLostItem = (id: number) => api.delete(`/lost-items/${id}`)
+export interface LostItemDetail extends LostItemSummary {
+  description: string
+}
+
+export interface LostItemCreateInput {
+  name: string
+  description: string
+  status?: LostItemStatus
+  imageUrl?: string
+}
+
+export interface LostItemStatusUpdateInput {
+  status: LostItemStatus
+  note?: string
+}
+
+export interface LostItemStatusUpdateResponse {
+  lostItemId: number
+  status: LostItemStatus
+  updatedAt: string
+}
+
+export const getLostItems = () =>
+  USE_MOCK ? mockGetLostItems() : api.get<LostItemSummary[]>('/api/lost-items')
+
+export const getLostItemDetail = (lostItemId: number) =>
+  USE_MOCK
+    ? mockGetLostItemDetail(lostItemId)
+    : api.get<LostItemDetail>(`/api/lost-items/${lostItemId}`)
+
+export const createLostItem = (data: LostItemCreateInput) =>
+  USE_MOCK ? mockCreateLostItem(data) : api.post<LostItemDetail>('/admin/lost-items', data)
+
+export const updateLostItemStatus = (
+  lostItemId: number,
+  data: LostItemStatusUpdateInput,
+) =>
+  USE_MOCK
+    ? mockUpdateLostItemStatus(lostItemId, data)
+    : api.patch<LostItemStatusUpdateResponse>(
+        `/admin/lost-items/${lostItemId}/status`,
+        data,
+      )

@@ -1,25 +1,83 @@
 import api from './api'
+import { USE_MOCK } from './env'
+import {
+  mockCreateBooth,
+  mockCreateBoothMenu,
+  mockGetBoothDetail,
+  mockGetBoothMenu,
+  mockGetBooths,
+  mockUpdateBooth,
+  mockUpdateBoothMenu,
+} from './__mocks__/booth'
 
-export interface Booth {
-  id: number
+export interface BoothSummary {
+  boothId: number
   name: string
-  department: string
-  info: string
+  imageUrl?: string
 }
+
+export interface BoothDetail extends BoothSummary {
+  description: string
+  notice?: string
+}
+
+export interface BoothCreateInput {
+  name: string
+  description: string
+  imageUrl?: string
+  notice?: string
+}
+
+export type BoothUpdateInput = Partial<BoothCreateInput>
+
+export type BoothMenuStatus = '판매 중' | '품절' | string
 
 export interface BoothMenu {
-  id: number
-  boothId: number
-  menuName: string
-  price: string
+  menuId: number
+  name: string
+  price: number
+  description?: string
+  imageUrl?: string
+  status: BoothMenuStatus
 }
 
-// TODO: 실제 엔드포인트로 교체
-export const getBooths = () => api.get<Booth[]>('/booths')
-export const createBooth = (data: Omit<Booth, 'id'>) => api.post<Booth>('/booths', data)
-export const updateBooth = (id: number, data: Partial<Booth>) => api.patch<Booth>(`/booths/${id}`, data)
-export const deleteBooth = (id: number) => api.delete(`/booths/${id}`)
+export interface BoothMenuCreateInput {
+  name: string
+  price: number
+  description: string
+  imageUrl?: string
+  status: BoothMenuStatus
+}
 
-export const getBoothMenus = (boothId: number) => api.get<BoothMenu[]>(`/booths/${boothId}/menus`)
-export const createBoothMenu = (boothId: number, data: Omit<BoothMenu, 'id' | 'boothId'>) =>
-  api.post<BoothMenu>(`/booths/${boothId}/menus`, data)
+export type BoothMenuUpdateInput = Partial<BoothMenuCreateInput>
+
+export const getBooths = () =>
+  USE_MOCK ? mockGetBooths() : api.get<BoothSummary[]>('/api/booths')
+
+export const getBoothDetail = (boothId: number) =>
+  USE_MOCK ? mockGetBoothDetail(boothId) : api.get<BoothDetail>(`/api/booths/${boothId}`)
+
+export const createBooth = (data: BoothCreateInput) =>
+  USE_MOCK ? mockCreateBooth(data) : api.post<BoothDetail>('/admin/booths', data)
+
+export const updateBooth = (boothId: number, data: BoothUpdateInput) =>
+  USE_MOCK
+    ? mockUpdateBooth(boothId, data)
+    : api.patch<BoothDetail>(`/admin/booths/${boothId}`, data)
+
+export const getBoothMenu = (boothId: number) =>
+  USE_MOCK ? mockGetBoothMenu(boothId) : api.get<BoothMenu[]>(`/api/booths/${boothId}/menu`)
+
+export const createBoothMenu = (boothId: number, data: BoothMenuCreateInput) =>
+  USE_MOCK
+    ? mockCreateBoothMenu(boothId, data)
+    : api.post<BoothMenu>(`/admin/booths/${boothId}/menu`, data)
+
+export const updateBoothMenu = (
+  boothId: number,
+  menuId: number,
+  data: BoothMenuUpdateInput,
+) =>
+  USE_MOCK
+    ? mockUpdateBoothMenu(boothId, menuId, data)
+    : api.patch<BoothMenu>(`/admin/booths/${boothId}/menu/${menuId}`, data)

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls node_modules/.bin/tsc*)",
+      "Bash(npx --no-install tsc --version)",
+      "mcp__plugin_figma_figma__get_design_context",
+      "mcp__notion__notion-fetch",
+      "mcp__notion__notion-search",
+      "Read(//c/Users/FiatLux/StudioProjects/uswfestival26-admin/.github/**)",
+      "Read(//c/Users/FiatLux/StudioProjects/uswfestival26-admin/**)"
+    ]
+  }
+}

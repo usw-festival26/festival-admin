@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Booth from './pages/Booth'
 import General from './pages/General'
@@ -8,14 +7,14 @@ import { ReactNode } from 'react'
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { isLoggedIn } = useAuth()
-  return isLoggedIn ? <>{children}</> : <Navigate to="/login" replace />
+  return isLoggedIn ? <>{children}</> : <Navigate to="/" replace />
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Dashboard />} />
+      <Route path="/login" element={<Navigate to="/" replace />} />
+      <Route path="/" element={<Login />} />
       <Route
         path="/booth"
         element={
