@@ -13,6 +13,8 @@ import {
 export interface BoothSummary {
   boothId: number
   name: string
+  department?: string
+  description?: string
   imageUrl?: string
 }
 
@@ -81,3 +83,6 @@ export const updateBoothMenu = (
   USE_MOCK
     ? mockUpdateBoothMenu(boothId, menuId, data)
     : api.patch<BoothMenu>(`/admin/booths/${boothId}/menu/${menuId}`, data)
+
+export const deleteBoothMenu = (boothId: number, menuId: number) =>
+  api.delete(`/admin/booths/${boothId}/menu/${menuId}`)

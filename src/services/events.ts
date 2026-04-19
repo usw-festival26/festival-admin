@@ -13,8 +13,17 @@ export interface FestivalEvent {
   createdAt: string
 }
 
+export interface CreateEventPayload {
+  title: string
+  description: string
+  image?: File
+}
+
 export const getEvents = () =>
   USE_MOCK ? mockGetEvents() : api.get<FestivalEvent[]>('/api/events')
 
 export const getEventDetail = (eventId: number) =>
   USE_MOCK ? mockGetEventDetail(eventId) : api.get<FestivalEvent>(`/api/events/${eventId}`)
+
+export const createEvent = (payload: CreateEventPayload) =>
+  api.post<FestivalEvent>('/api/events', payload)

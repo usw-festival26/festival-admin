@@ -1,10 +1,11 @@
 :root {
   --gray-bg: #E0E0E0;
-  --sidebar-color: #D9D9D9;
+  --sidebar-color: #E0DCFF;
   --color-divider: #dbdbdb;
   --color-search-bg: #f1f1f5;
   --color-search-placeholder: #767676;
   --color-muted: #7d7d7d;
+  --color-brand-light: #E0DCFF;
   --color-error-bg: #ffbebe;
   --color-error-border: #ff6060;
   --color-error-text: #f81919;
@@ -95,15 +96,15 @@ body { font-family: var(--font-pretendard); }
 
 /* 프로필 아이콘 */
 .profile-icon {
-  width: 40px;
-  height: 40px;
+  width: 24px;
+  height: 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-.profile-icon svg { width: 40px; height: 40px; }
+.profile-icon svg { width: 24px; height: 24px; }
 
 /* 대시보드 본문 */
 .dashboard-body { flex: 1; padding: 40px; text-align: center; overflow-y: auto; }
@@ -169,7 +170,7 @@ body { font-family: var(--font-pretendard); }
 }
 .login-subtext {
   font-size: 12px;
-  color: var(--color-muted);
+  color: var(--color-brand-light);
   margin-bottom: 40px;
 }
 .login-container .form-group { margin-bottom: 28px; }
@@ -326,16 +327,24 @@ body { font-family: var(--font-pretendard); }
 .booth-table tr:last-child td { border-bottom: none; }
 input[type="checkbox"] { width: 18px; height: 18px; accent-color: #000; cursor: pointer; }
 .booth-footer-row { display: flex; justify-content: flex-end; margin-top: 20px; }
+.booth-name-badge {
+  background: var(--color-brand-light);
+  border-radius: 15px;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
 
 /* 총학생회 섹션 */
 .section-container { max-width: 900px; margin: 0 auto 40px; text-align: left; }
 .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.section-header h3 { font-size: 18px; font-weight: 800; }
+.section-header h3 { font-size: 18px; font-weight: 900; }
 
 /* 공지 리스트 */
 .round-box { border: 1.5px solid #000; border-radius: 20px; padding: 20px; }
 .list-item-gray {
-  background-color: #D9D9D9;
+  background-color: var(--color-brand-light);
   padding: 15px 20px;
   border-radius: 12px;
   margin-bottom: 10px;
@@ -359,14 +368,30 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: #000; cursor: 
 .event-text { display: flex; flex-direction: column; gap: 4px; }
 
 /* 토글 스위치 */
-.switch { position: relative; display: inline-block; width: 52px; height: 28px; margin-left: 10px; }
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; margin-left: 10px; flex-shrink: 0; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
 input:checked + .slider { background-color: #000; }
-input:checked + .slider:before { transform: translateX(24px); }
+input:checked + .slider:before { transform: translateX(20px); }
 
 /* 이벤트 */
+.event-card-wrapper { display: flex; align-items: center; gap: 12px; }
+.event-card {
+  flex: 1;
+  border: 1.5px solid #000;
+  border-radius: 20px;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 90px;
+  background: #fff;
+}
+.event-card.ended { background: #d9d9d9; }
+.event-ended-label { font-size: 12px; color: #555; white-space: nowrap; margin-left: 12px; }
+.event-img-box { width: 90px; height: 90px; background: var(--color-brand-light); border-radius: 12px; flex-shrink: 0; }
+
 .img-placeholder-small { width: 60px; height: 60px; background-color: #D9D9D9; border-radius: 10px; }
 .status-green { color: #2ecc71; font-size: 12px; display: block; margin-top: 5px; }
 .status-red { color: #e74c3c; font-size: 12px; display: block; margin-top: 5px; }
@@ -407,6 +432,21 @@ input:checked + .slider:before { transform: translateX(24px); }
   line-height: 1;
 }
 .modal-form { display: flex; flex-direction: column; }
+label.image-upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 161px;
+  border: 1px solid #000;
+  border-radius: 15px;
+  cursor: pointer;
+  background: #fff;
+  font-size: inherit;
+  font-weight: inherit;
+  margin-bottom: 0;
+}
 
 /* 대시보드 상단 우측 링크 (탑바 아래) */
 .dashboard-login-link {
