@@ -44,7 +44,7 @@ export const mockCreateLostItem = (data: LostItemCreateInput) => {
     lostItemId: nextId(store as unknown as { [k: string]: unknown }[], 'lostItemId'),
     name: data.name,
     description: data.description,
-    status: data.status ?? 'STORED',
+    status: 'STORED',
     imageUrl: data.imageUrl ?? '',
   }
   store = [created, ...store]

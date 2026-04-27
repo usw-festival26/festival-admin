@@ -11,20 +11,18 @@ import {
   updateNotice,
 } from '../services/notice'
 import {
+  LostItemCategory,
   LostItemSummary,
+  LOST_CATEGORY_LABELS,
+  LOST_CATEGORY_VALUES,
   createLostItem,
   getLostItems,
   updateLostItemStatus,
 } from '../services/lost'
-import { FestivalEvent, createEvent, getEvents } from '../services/events'
-import { Artist, createArtist, getArtists } from '../services/artists'
 
 export default function General() {
   const [notices, setNotices] = useState<NoticeSummary[]>([])
   const [lostItems, setLostItems] = useState<LostItemSummary[]>([])
-  const [events, setEvents] = useState<FestivalEvent[]>([])
-  const [artists, setArtists] = useState<Artist[]>([])
-
   const [noticeModalOpen, setNoticeModalOpen] = useState(false)
   const [lostModalOpen, setLostModalOpen] = useState(false)
   const [editingNotice, setEditingNotice] = useState<NoticeDetail | null>(null)
@@ -35,16 +33,8 @@ export default function General() {
 
   const [lostName, setLostName] = useState('')
   const [lostDesc, setLostDesc] = useState('')
-
-  const [eventModalOpen, setEventModalOpen] = useState(false)
-  const [eventTitle, setEventTitle] = useState('')
-  const [eventDesc, setEventDesc] = useState('')
-  const [eventImage, setEventImage] = useState<File | null>(null)
-
-  const [lineupModalOpen, setLineupModalOpen] = useState(false)
-  const [lineupName, setLineupName] = useState('')
-  const [lineupDesc, setLineupDesc] = useState('')
-  const [lineupImage, setLineupImage] = useState<File | null>(null)
+  const [lostImage, setLostImage] = useState<File | null>(null)
+  const [lostCategory, setLostCategory] = useState<LostItemCategory>('ELECTRONICS')
 
   const refreshNotices = () => getNotices().then((res) => setNotices(res.data))
   const refreshLost = () => getLostItems().then((res) => setLostItems(res.data))
@@ -52,8 +42,6 @@ export default function General() {
   useEffect(() => {
     refreshNotices()
     refreshLost()
-    getEvents().then((res) => setEvents(res.data))
-    getArtists().then((res) => setArtists(res.data))
   }, [])
 
   const resetNoticeForm = () => {
@@ -104,10 +92,12 @@ export default function General() {
 
   const handleLostSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    await createLostItem({ name: lostName, description: lostDesc, status: 'STORED' })
+    await createLostItem({ name: lostName, description: lostDesc, category: lostCategory })
     setLostModalOpen(false)
     setLostName('')
     setLostDesc('')
+    setLostImage(null)
+    setLostCategory('ELECTRONICS')
     refreshLost()
   }
 
@@ -115,26 +105,6 @@ export default function General() {
     const nextStatus = item.status === 'CLAIMED' ? 'STORED' : 'CLAIMED'
     await updateLostItemStatus(item.lostItemId, { status: nextStatus })
     refreshLost()
-  }
-
-  const handleEventSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    await createEvent({ title: eventTitle, description: eventDesc, image: eventImage ?? undefined })
-    setEventModalOpen(false)
-    setEventTitle('')
-    setEventDesc('')
-    setEventImage(null)
-    getEvents().then((res) => setEvents(res.data))
-  }
-
-  const handleLineupSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    await createArtist({ name: lineupName, description: lineupDesc, image: lineupImage ?? undefined })
-    setLineupModalOpen(false)
-    setLineupName('')
-    setLineupDesc('')
-    setLineupImage(null)
-    getArtists().then((res) => setArtists(res.data))
   }
 
   return (
@@ -200,70 +170,6 @@ export default function General() {
           </div>
         </div>
 
-        {/* 이벤트 */}
-        <div className="section-container">
-          <div className="section-header">
-            <h3>이벤트</h3>
-            <button className="btn-black small" onClick={() => setEventModalOpen(true)}>
-              + 이벤트 등록
-            </button>
-          </div>
-          <div className="grid-container">
-            {events.filter((e) => e.status === 'ongoing').map((event) => (
-              <div key={event.eventId} className="event-card-wrapper">
-                <div className="event-card">
-                  <div className="event-text">
-                    <strong>{event.title}</strong>
-                    <span>{event.description}</span>
-                  </div>
-                </div>
-                <div className="event-img-box"></div>
-              </div>
-            ))}
-          </div>
-          {events.some((e) => e.status !== 'ongoing') && (
-            <>
-              <hr style={{ border: 'none', borderTop: '1px solid #ddd', margin: '16px 0' }} />
-              <div className="grid-container">
-                {events.filter((e) => e.status !== 'ongoing').map((event) => (
-                  <div key={event.eventId} className="event-card-wrapper">
-                    <div className="event-card ended">
-                      <div className="event-text">
-                        <strong>{event.title}</strong>
-                        <span>{event.description}</span>
-                      </div>
-                      <span className="event-ended-label">종료됨</span>
-                    </div>
-                    <div className="event-img-box"></div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* 라인업 */}
-        <div className="section-container">
-          <div className="section-header">
-            <h3>라인업</h3>
-            <button className="btn-black small" onClick={() => setLineupModalOpen(true)}>
-              + 라인업 등록
-            </button>
-          </div>
-          <div className="grid-container">
-            {artists.map((artist) => (
-              <div key={artist.artistId} className="event-card-wrapper">
-                <div className="event-card">
-                  <div className="event-text">
-                    <strong>{artist.name}</strong>
-                    <span>{artist.description}</span>
-                  </div>
-                </div>
-                <div className="event-img-box"></div>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
       <Modal
@@ -321,29 +227,29 @@ export default function General() {
       </Modal>
 
       <Modal
-        isOpen={eventModalOpen}
-        onClose={() => { setEventModalOpen(false); setEventTitle(''); setEventDesc(''); setEventImage(null) }}
-        title="이벤트 등록"
-        description="이벤트의 상세 정보를 입력해주세요"
+        isOpen={lostModalOpen}
+        onClose={() => setLostModalOpen(false)}
+        title="분실물 등록"
+        description="분실물의 상세 정보를 입력해주세요"
       >
-        <form className="modal-form" onSubmit={handleEventSubmit}>
+        <form className="modal-form" onSubmit={handleLostSubmit}>
           <div className="form-group">
-            <label>이벤트 이름 <span className="required">*</span></label>
+            <label>분실물 이름 <span className="required">*</span></label>
             <input
               type="text"
-              placeholder="예 : 인생네컷 부스"
-              value={eventTitle}
-              onChange={(e) => setEventTitle(e.target.value)}
+              placeholder="예 : 에어팟"
+              value={lostName}
+              onChange={(e) => setLostName(e.target.value)}
               required
             />
           </div>
           <div className="form-group">
-            <label>이벤트 설명</label>
+            <label>분실물 설명</label>
             <input
               type="text"
-              placeholder="예 : 마니마니 찍이용"
-              value={eventDesc}
-              onChange={(e) => setEventDesc(e.target.value)}
+              placeholder="예 : 미대 앞에서 주웠어요"
+              value={lostDesc}
+              onChange={(e) => setLostDesc(e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -353,10 +259,10 @@ export default function General() {
                 type="file"
                 accept="image/*"
                 style={{ display: 'none' }}
-                onChange={(e) => setEventImage(e.target.files?.[0] ?? null)}
+                onChange={(e) => setLostImage(e.target.files?.[0] ?? null)}
               />
-              {eventImage ? (
-                <span style={{ fontSize: 13, color: '#333' }}>{eventImage.name}</span>
+              {lostImage ? (
+                <span style={{ fontSize: 13, color: '#333' }}>{lostImage.name}</span>
               ) : (
                 <>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -369,94 +275,22 @@ export default function General() {
               )}
             </label>
           </div>
-          <button type="submit" className="btn-black btn-block">등록하기</button>
-        </form>
-      </Modal>
-
-      <Modal
-        isOpen={lineupModalOpen}
-        onClose={() => { setLineupModalOpen(false); setLineupName(''); setLineupDesc(''); setLineupImage(null) }}
-        title="라인업 등록"
-        description="이벤트의 상세 정보를 입력해주세요"
-      >
-        <form className="modal-form" onSubmit={handleLineupSubmit}>
           <div className="form-group">
-            <label>아티스트 이름 <span className="required">*</span></label>
-            <input
-              type="text"
-              placeholder="예 : 인생네컷 부스"
-              value={lineupName}
-              onChange={(e) => setLineupName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>아티스트 설명</label>
-            <input
-              type="text"
-              placeholder="예 : 마니마니 찍이용"
-              value={lineupDesc}
-              onChange={(e) => setLineupDesc(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label>이미지 업로드 <span className="required">*</span></label>
-            <label className="image-upload-box">
-              <input
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={(e) => setLineupImage(e.target.files?.[0] ?? null)}
-                required
-              />
-              {lineupImage ? (
-                <span style={{ fontSize: 13, color: '#333' }}>{lineupImage.name}</span>
-              ) : (
-                <>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                  <span style={{ fontSize: 13, color: '#bbb', marginTop: 8 }}>클릭하여 이미지를 선택해주세요</span>
-                </>
-              )}
-            </label>
+            <label>분류</label>
+            <div className="category-chips">
+              {LOST_CATEGORY_VALUES.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`category-chip${lostCategory === cat ? ' selected' : ''}`}
+                  onClick={() => setLostCategory(cat)}
+                >
+                  {LOST_CATEGORY_LABELS[cat]}
+                </button>
+              ))}
+            </div>
           </div>
           <button type="submit" className="btn-black btn-block">등록하기</button>
-        </form>
-      </Modal>
-
-      <Modal
-        isOpen={lostModalOpen}
-        onClose={() => setLostModalOpen(false)}
-        title="분실물 등록"
-        description="분실물 정보를 입력해주세요"
-      >
-        <form className="modal-form" onSubmit={handleLostSubmit}>
-          <div className="form-group">
-            <label>물건 이름 <span className="required">*</span></label>
-            <input
-              type="text"
-              placeholder="예: 에어팟"
-              value={lostName}
-              onChange={(e) => setLostName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>습득 정보 <span className="required">*</span></label>
-            <input
-              type="text"
-              placeholder="습득 장소, 물건 정보"
-              value={lostDesc}
-              onChange={(e) => setLostDesc(e.target.value)}
-              required
-            />
-          </div>
-          <div className="login-btn-wrapper">
-            <button type="submit" className="btn-black">등록하기</button>
-          </div>
         </form>
       </Modal>
     </Layout>

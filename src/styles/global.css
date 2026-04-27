@@ -448,6 +448,21 @@ label.image-upload-box {
   margin-bottom: 0;
 }
 
+/* 분류 칩 */
+.category-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.category-chip {
+  padding: 5px 16px;
+  border-radius: 14.5px;
+  border: 1px solid #000;
+  background: #fff;
+  font-family: var(--font-pretendard);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  line-height: normal;
+}
+.category-chip.selected { background: var(--color-brand-light); border-color: transparent; }
+
 /* 대시보드 상단 우측 링크 (탑바 아래) */
 .dashboard-login-link {
   display: flex;

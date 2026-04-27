@@ -48,6 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let role: Exclude<UserRole, null>
     let accessToken: string
 
+    
+
     if (USE_MOCK) {
       role = username === 'booth' ? 'booth' : 'general'
       accessToken = `mock-token-${Date.now()}`

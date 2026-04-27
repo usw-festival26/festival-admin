@@ -9,12 +9,24 @@ import {
 
 export type LostItemStatus = 'STORED' | 'CLAIMED' | string
 
+export type LostItemCategory = 'ELECTRONICS' | 'WALLET_CARD' | 'CLOTHING_BAG' | 'OTHER'
+
+export const LOST_CATEGORY_LABELS: Record<LostItemCategory, string> = {
+  ELECTRONICS: '전자기기',
+  WALLET_CARD: '지갑·카드',
+  CLOTHING_BAG: '의류·가방',
+  OTHER: '기타',
+}
+
+export const LOST_CATEGORY_VALUES = Object.keys(LOST_CATEGORY_LABELS) as LostItemCategory[]
+
 export interface LostItemSummary {
   lostItemId: number
   name: string
   storageLocation?: string
   status: LostItemStatus
   imageUrl?: string
+  category?: LostItemCategory
 }
 
 export interface LostItemDetail extends LostItemSummary {
@@ -24,7 +36,7 @@ export interface LostItemDetail extends LostItemSummary {
 export interface LostItemCreateInput {
   name: string
   description: string
-  status?: LostItemStatus
+  category: LostItemCategory
   imageUrl?: string
 }
 

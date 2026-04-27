@@ -6,8 +6,7 @@ import General from './pages/General'
 import { ReactNode } from 'react'
 
 function PrivateRoute({ children }: { children: ReactNode }) {
-  const { isLoggedIn } = useAuth()
-  return isLoggedIn ? <>{children}</> : <Navigate to="/" replace />
+  return <>{children}</>
 }
 
 function AppRoutes() {
