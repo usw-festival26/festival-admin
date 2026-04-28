@@ -20,10 +20,10 @@ jobs:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
         run: |
           if [ -z "$VITE_API_URL" ]; then
-            echo "::warning::VITE_API_URL is empty. Pages Functions proxy(/api/*) 사용 시엔 의도된 설정. 그 외에는 mock 모드로 빌드되니 확인하세요."
-          else
-            echo "VITE_API_URL is configured."
+            echo "::error::VITE_API_URL repository variable is not set. Configure it in Settings → Secrets and variables → Actions → Variables."
+            exit 1
           fi
+          echo "VITE_API_URL is configured."
       - run: npm run typecheck
       - run: npm run build
         env:
