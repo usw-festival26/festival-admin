@@ -15,9 +15,9 @@ export default function TopBar() {
   const { isLoggedIn, logout } = useAuth()
   const navigate = useNavigate()
 
-  const handleLogout = () => {
-    logout()
-    navigate('/', { replace: true })
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login', { replace: true })
   }
 
   return (
