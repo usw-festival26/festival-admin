@@ -5,7 +5,7 @@ const baseURL = import.meta.env.VITE_API_URL ?? ''
 
 if (!baseURL && import.meta.env.DEV) {
   // eslint-disable-next-line no-console
-  console.warn('[api] VITE_API_URL is not set — running in mock mode.')
+  console.info('[api] VITE_API_URL is empty — using same-origin requests (dev proxy 경로).')
 }
 
 const CSRF_COOKIE_NAME = 'XSRF-TOKEN'
