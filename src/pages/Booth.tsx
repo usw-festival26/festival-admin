@@ -9,7 +9,7 @@ import {
   deleteBoothMenu,
   getBoothMenu,
   getBooths,
-  updateBoothMenu,
+  updateBoothMenuStatus,
 } from '../services/booth'
 
 type MenuItem = { name: string; price: string }
@@ -73,8 +73,6 @@ export default function Booth() {
       await createBoothMenu(selectedBoothId, {
         name: m.name,
         price: Number(m.price.replace(/[^0-9]/g, '')) || 0,
-        description: '',
-        status: '판매 중',
       })
     }
     resetMenuForm()
@@ -83,8 +81,8 @@ export default function Booth() {
 
   const toggleSoldOut = async (menu: BoothMenu) => {
     if (selectedBoothId == null) return
-    const next = menu.status === '품절' ? '판매 중' : '품절'
-    await updateBoothMenu(selectedBoothId, menu.menuId, { status: next })
+    const next = menu.status === 'SOLD_OUT' ? 'ON_SALE' : 'SOLD_OUT'
+    await updateBoothMenuStatus(selectedBoothId, menu.menuId, next)
     refreshMenus(selectedBoothId)
   }
 
@@ -177,8 +175,8 @@ export default function Booth() {
                 {booths.map((booth) => (
                   <tr key={booth.boothId}>
                     <td>{booth.name}</td>
-                    <td>{booth.department ?? '-'}</td>
-                    <td>{booth.description ?? '-'}</td>
+                    <td>-</td>
+                    <td>-</td>
                     <td>
                       <button
                         className="btn-outline"
@@ -285,7 +283,7 @@ export default function Booth() {
                       <label className="switch">
                         <input
                           type="checkbox"
-                          checked={menu.status === '품절'}
+                          checked={menu.status === 'SOLD_OUT'}
                           onChange={() => toggleSoldOut(menu)}
                         />
                         <span className="slider"></span>

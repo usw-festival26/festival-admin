@@ -103,7 +103,7 @@ export default function General() {
 
   const toggleCollected = async (item: LostItemSummary) => {
     const nextStatus = item.status === 'CLAIMED' ? 'STORED' : 'CLAIMED'
-    await updateLostItemStatus(item.lostItemId, { status: nextStatus })
+    await updateLostItemStatus(item.lostItemId, nextStatus)
     refreshLost()
   }
 
@@ -152,7 +152,7 @@ export default function General() {
               <div key={item.lostItemId} className="card-item">
                 <div className="card-info">
                   <strong>{item.name}</strong>
-                  <span>{item.storageLocation ?? ''}</span>
+                  <span>{item.category ? LOST_CATEGORY_LABELS[item.category] : ''}</span>
                 </div>
                 <div className="card-action">
                   <span>수거여부</span>

@@ -1,6 +1,5 @@
 export const USE_MOCK = !import.meta.env.VITE_API_URL
 
-export const TOKEN_STORAGE_KEY = 'festival_admin_token'
 export const ROLE_STORAGE_KEY = 'festival_admin_role'
 
 const latencyRaw = import.meta.env.VITE_MOCK_LATENCY_MS

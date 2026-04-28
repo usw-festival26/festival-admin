@@ -1,81 +1,71 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import api from '../services/api'
-import { ROLE_STORAGE_KEY, TOKEN_STORAGE_KEY, USE_MOCK } from '../services/env'
+import { ROLE_STORAGE_KEY, USE_MOCK } from '../services/env'
 
 type UserRole = 'general' | 'booth' | null
 
 interface LoginResponse {
-  username: string
-  access_token: string
-  token_type: string
-  role: Exclude<UserRole, null>
-  message?: string
+  role?: string
 }
 
 interface AuthContextValue {
   isLoggedIn: boolean
   userRole: UserRole
-  login: (username: string, password: string) => Promise<UserRole>
-  logout: () => void
+  login: (loginId: string, password: string) => Promise<UserRole>
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-function persist(token: string, role: Exclude<UserRole, null>) {
-  localStorage.setItem(TOKEN_STORAGE_KEY, token)
+function persistRole(role: Exclude<UserRole, null>) {
   localStorage.setItem(ROLE_STORAGE_KEY, role)
 }
 
 function clearPersisted() {
-  localStorage.removeItem(TOKEN_STORAGE_KEY)
   localStorage.removeItem(ROLE_STORAGE_KEY)
 }
 
+function normalizeRole(role: string | undefined): Exclude<UserRole, null> {
+  return role === 'booth' ? 'booth' : 'general'
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<UserRole>(null)
 
   useEffect(() => {
-    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY)
     const storedRole = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole
-    if (storedToken && (storedRole === 'general' || storedRole === 'booth')) {
-      setToken(storedToken)
+    if (storedRole === 'general' || storedRole === 'booth') {
       setUserRole(storedRole)
     }
   }, [])
 
-  const login = async (username: string, password: string): Promise<UserRole> => {
+  const login = async (loginId: string, password: string): Promise<UserRole> => {
     let role: Exclude<UserRole, null>
-    let accessToken: string
-
-    
-
     if (USE_MOCK) {
-      role = username === 'booth' ? 'booth' : 'general'
-      accessToken = `mock-token-${Date.now()}`
+      role = loginId === 'booth' ? 'booth' : 'general'
     } else {
-      const res = await api.post<LoginResponse>('/api/auth/login', { username, password })
-      role = res.data.role
-      accessToken = res.data.access_token
+      const res = await api.post<LoginResponse>('/api/admin/auth/login', { loginId, password })
+      role = normalizeRole(res.data.role)
     }
-
-    persist(accessToken, role)
-    setToken(accessToken)
+    persistRole(role)
     setUserRole(role)
     return role
   }
 
-  const logout = () => {
+  const logout = async () => {
     if (!USE_MOCK) {
-      api.post('/api/auth/logout').catch(() => {})
+      try {
+        await api.post('/api/admin/auth/logout')
+      } catch {
+        // ignore — clear local state regardless
+      }
     }
     clearPersisted()
-    setToken(null)
     setUserRole(null)
   }
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn: !!token, userRole, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn: !!userRole, userRole, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

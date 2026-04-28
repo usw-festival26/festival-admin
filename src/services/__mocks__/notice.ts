@@ -1,10 +1,4 @@
-import type {
-  NoticeCreateInput,
-  NoticeDeleteResponse,
-  NoticeDetail,
-  NoticeSummary,
-  NoticeUpdateInput,
-} from '../notice'
+import type { NoticeDetail, NoticeSaveInput, NoticeSummary } from '../notice'
 import { mockResponse } from '../env'
 import { loadStore, nextId, saveStore } from './store'
 
@@ -57,12 +51,12 @@ export const mockGetNoticeDetail = (noticeId: number) => {
   return mockResponse<NoticeDetail>(n)
 }
 
-export const mockCreateNotice = (data: NoticeCreateInput) => {
+export const mockCreateNotice = (data: NoticeSaveInput) => {
   const created: NoticeDetail = {
     noticeId: nextId(store as unknown as { [k: string]: unknown }[], 'noticeId'),
     title: data.title,
     content: data.content,
-    pinned: data.pinned ?? false,
+    pinned: data.pinned,
     createdAt: new Date().toISOString(),
   }
   store = [created, ...store]
@@ -70,14 +64,10 @@ export const mockCreateNotice = (data: NoticeCreateInput) => {
   return mockResponse<NoticeDetail>(created)
 }
 
-export const mockUpdateNotice = (noticeId: number, data: NoticeUpdateInput) => {
+export const mockUpdateNotice = (noticeId: number, data: NoticeSaveInput) => {
   const idx = store.findIndex((x) => x.noticeId === noticeId)
   if (idx < 0) return Promise.reject(new Error('Notice not found'))
-  const updated: NoticeDetail = {
-    ...store[idx],
-    ...data,
-    updatedAt: new Date().toISOString(),
-  }
+  const updated: NoticeDetail = { ...store[idx], ...data }
   store[idx] = updated
   persist()
   return mockResponse<NoticeDetail>(updated)
@@ -88,9 +78,5 @@ export const mockDeleteNotice = (noticeId: number) => {
   store = store.filter((x) => x.noticeId !== noticeId)
   if (store.length === before) return Promise.reject(new Error('Notice not found'))
   persist()
-  return mockResponse<NoticeDeleteResponse>({
-    message: '삭제되었습니다.',
-    noticeId,
-    deletedAt: new Date().toISOString(),
-  })
+  return mockResponse<void>(undefined as unknown as void)
 }
