@@ -1,4 +1,4 @@
-export const USE_MOCK = !import.meta.env.VITE_API_URL
+export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 
 export const ROLE_STORAGE_KEY = 'festival_admin_role'
 
