@@ -8,7 +8,7 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "gen:api": "openapi-typescript http://15.165.17.83/v3/api-docs -o ./src/types/api.d.ts"
+    "gen:api": "node --env-file=.env scripts/gen-api.mjs"
   },
   "dependencies": {
     "axios": "^1.7.2",
