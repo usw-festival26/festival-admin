@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import api from '../services/api'
+import api, { setCsrfToken } from '../services/api'
 import { ROLE_STORAGE_KEY, USE_MOCK } from '../services/env'
 
 type UserRole = 'general' | 'booth' | null
@@ -61,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     clearPersisted()
+    setCsrfToken(null)
     setUserRole(null)
   }
 
