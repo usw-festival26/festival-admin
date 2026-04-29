@@ -35,6 +35,8 @@ export default function General() {
   const [lostDesc, setLostDesc] = useState('')
   const [lostImage, setLostImage] = useState<File | null>(null)
   const [lostCategory, setLostCategory] = useState<LostItemCategory>('ELECTRONICS')
+  const [noticeError, setNoticeError] = useState('')
+  const [lostError, setLostError] = useState('')
 
   const refreshNotices = () => getNotices().then((res) => setNotices(res.data))
   const refreshLost = () => getLostItems().then((res) => setLostItems(res.data))
@@ -67,18 +69,23 @@ export default function General() {
 
   const handleNoticeSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (editingNotice) {
-      await updateNotice(editingNotice.noticeId, {
-        title: noticeTitle,
-        content: noticeContent,
-        pinned: noticePinned,
-      })
-    } else {
-      await createNotice({ title: noticeTitle, content: noticeContent, pinned: noticePinned })
+    setNoticeError('')
+    try {
+      if (editingNotice) {
+        await updateNotice(editingNotice.noticeId, {
+          title: noticeTitle,
+          content: noticeContent,
+          pinned: noticePinned,
+        })
+      } else {
+        await createNotice({ title: noticeTitle, content: noticeContent, pinned: noticePinned })
+      }
+      setNoticeModalOpen(false)
+      resetNoticeForm()
+      refreshNotices()
+    } catch {
+      setNoticeError('저장에 실패했습니다. 다시 시도해주세요.')
     }
-    setNoticeModalOpen(false)
-    resetNoticeForm()
-    refreshNotices()
   }
 
   const handleNoticeDelete = async () => {
@@ -92,13 +99,18 @@ export default function General() {
 
   const handleLostSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    await createLostItem({ name: lostName, description: lostDesc, category: lostCategory })
-    setLostModalOpen(false)
-    setLostName('')
-    setLostDesc('')
-    setLostImage(null)
-    setLostCategory('ELECTRONICS')
-    refreshLost()
+    setLostError('')
+    try {
+      await createLostItem({ name: lostName, description: lostDesc, category: lostCategory })
+      setLostModalOpen(false)
+      setLostName('')
+      setLostDesc('')
+      setLostImage(null)
+      setLostCategory('ELECTRONICS')
+      refreshLost()
+    } catch {
+      setLostError('등록에 실패했습니다. 다시 시도해주세요.')
+    }
   }
 
   const toggleCollected = async (item: LostItemSummary) => {
@@ -213,6 +225,7 @@ export default function General() {
               상단 고정
             </label>
           </div>
+          {noticeError && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{noticeError}</p>}
           <div className="login-btn-wrapper" style={{ display: 'flex', gap: 8 }}>
             <button type="submit" className="btn-black">
               {editingNotice ? '수정하기' : '등록하기'}
@@ -290,6 +303,7 @@ export default function General() {
               ))}
             </div>
           </div>
+          {lostError && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{lostError}</p>}
           <button type="submit" className="btn-black btn-block">등록하기</button>
         </form>
       </Modal>

@@ -26,7 +26,8 @@ function clearPersisted() {
 }
 
 function normalizeRole(role: string | undefined): Exclude<UserRole, null> {
-  return role?.toLowerCase().includes('booth') ? 'booth' : 'general'
+  if (!role) return 'general'
+  return role === 'DEPARTMENT_COUNCIL' ? 'booth' : 'general'
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
