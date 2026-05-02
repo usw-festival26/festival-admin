@@ -3,7 +3,7 @@ import { SupabaseClient, createClient } from '@supabase/supabase-js'
 const BUCKET = 'images'
 const MAX_BYTES = 5 * 1024 * 1024
 
-export type UploadFolder = 'booths' | 'lost-items'
+export type UploadFolder = 'booths' | 'lost-items' | 'menus'
 
 export interface UploadedImage {
   publicUrl: string
@@ -47,4 +47,13 @@ export async function uploadImage(file: File, folder: UploadFolder): Promise<Upl
 
 export async function removeImage(path: string): Promise<void> {
   await getClient().storage.from(BUCKET).remove([path])
+}
+
+export function pathFromPublicUrl(publicUrl: string | null | undefined): string | null {
+  if (!publicUrl) return null
+  const marker = `/storage/v1/object/public/${BUCKET}/`
+  const idx = publicUrl.indexOf(marker)
+  if (idx === -1) return null
+  const path = publicUrl.slice(idx + marker.length)
+  return path || null
 }

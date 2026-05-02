@@ -87,6 +87,16 @@ export const mockUpdateBooth = (boothId: number, data: BoothUpdateInput) => {
   return mockResponse<BoothDetail>(boothStore[idx])
 }
 
+export const mockDeleteBooth = (boothId: number) => {
+  const before = boothStore.length
+  boothStore = boothStore.filter((x) => x.boothId !== boothId)
+  if (boothStore.length === before) return Promise.reject(new Error('Booth not found'))
+  menuStore = menuStore.filter((m) => m.boothId !== boothId)
+  persistBooths()
+  persistMenus()
+  return mockResponse<void>(undefined as unknown as void)
+}
+
 export const mockGetBoothMenu = (boothId: number) => {
   const menus = menuStore.filter((m) => m.boothId === boothId).map((m) => m.menu)
   return mockResponse<BoothMenu[]>(menus)

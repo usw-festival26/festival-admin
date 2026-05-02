@@ -3,6 +3,7 @@ import { USE_MOCK } from './env'
 import {
   mockCreateBooth,
   mockCreateBoothMenu,
+  mockDeleteBooth,
   mockDeleteBoothMenu,
   mockGetBoothDetail,
   mockGetBoothMenu,
@@ -69,6 +70,9 @@ export const updateBooth = (boothId: number, data: BoothUpdateInput) =>
   USE_MOCK
     ? mockUpdateBooth(boothId, data)
     : api.patch<BoothDetail>(`/api/admin/booths/${boothId}`, data)
+
+export const deleteBooth = (boothId: number) =>
+  USE_MOCK ? mockDeleteBooth(boothId) : api.delete<void>(`/api/admin/booths/${boothId}`)
 
 export const getBoothMenu = (boothId: number) =>
   USE_MOCK
