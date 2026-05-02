@@ -92,3 +92,11 @@ export const mockUpdateLostItem = (
   persist()
   return mockResponse<LostItemDetail>(store[idx])
 }
+
+export const mockDeleteLostItem = (lostItemId: number) => {
+  const before = store.length
+  store = store.filter((x) => x.lostItemId !== lostItemId)
+  if (store.length === before) return Promise.reject(new Error('LostItem not found'))
+  persist()
+  return mockResponse<void>(undefined as unknown as void)
+}

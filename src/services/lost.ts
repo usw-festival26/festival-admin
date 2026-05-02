@@ -2,6 +2,7 @@ import api from './api'
 import { USE_MOCK } from './env'
 import {
   mockCreateLostItem,
+  mockDeleteLostItem,
   mockGetLostItemDetail,
   mockGetLostItems,
   mockUpdateLostItem,
@@ -67,3 +68,8 @@ export const updateLostItem = (lostItemId: number, data: LostItemUpdateInput) =>
 
 export const updateLostItemStatus = (lostItemId: number, status: LostItemStatus) =>
   updateLostItem(lostItemId, { status })
+
+export const deleteLostItem = (lostItemId: number) =>
+  USE_MOCK
+    ? mockDeleteLostItem(lostItemId)
+    : api.delete<void>(`/api/admin/lost-items/${lostItemId}`)

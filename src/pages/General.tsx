@@ -12,14 +12,23 @@ import {
 } from '../services/notice'
 import {
   LostItemCategory,
+  LostItemDetail,
   LostItemSummary,
   LOST_CATEGORY_LABELS,
   LOST_CATEGORY_VALUES,
   createLostItem,
+  deleteLostItem,
+  getLostItemDetail,
   getLostItems,
+  updateLostItem,
   updateLostItemStatus,
 } from '../services/lost'
-import { UploadedImage, removeImage, uploadImage } from '../services/supabase'
+import {
+  UploadedImage,
+  pathFromPublicUrl,
+  removeImage,
+  uploadImage,
+} from '../services/supabase'
 
 export default function General() {
   const [notices, setNotices] = useState<NoticeSummary[]>([])
@@ -36,6 +45,7 @@ export default function General() {
   const [lostDesc, setLostDesc] = useState('')
   const [lostImage, setLostImage] = useState<File | null>(null)
   const [lostCategory, setLostCategory] = useState<LostItemCategory>('ELECTRONICS')
+  const [editingLost, setEditingLost] = useState<LostItemDetail | null>(null)
   const [noticeError, setNoticeError] = useState('')
   const [lostError, setLostError] = useState('')
   const [lostSubmitting, setLostSubmitting] = useState(false)
@@ -99,6 +109,35 @@ export default function General() {
     refreshNotices()
   }
 
+  const resetLostForm = () => {
+    setLostName('')
+    setLostDesc('')
+    setLostImage(null)
+    setLostCategory('ELECTRONICS')
+    setLostError('')
+    setEditingLost(null)
+  }
+
+  const openNewLost = () => {
+    resetLostForm()
+    setLostModalOpen(true)
+  }
+
+  const openEditLost = async (lostItemId: number) => {
+    try {
+      const res = await getLostItemDetail(lostItemId)
+      setEditingLost(res.data)
+      setLostName(res.data.name)
+      setLostDesc(res.data.description)
+      setLostImage(null)
+      setLostCategory(res.data.category ?? 'ELECTRONICS')
+      setLostError('')
+      setLostModalOpen(true)
+    } catch {
+      refreshLost()
+    }
+  }
+
   const handleLostSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setLostError('')
@@ -106,21 +145,56 @@ export default function General() {
     let uploaded: UploadedImage | null = null
     try {
       if (lostImage) uploaded = await uploadImage(lostImage, 'lost-items')
-      await createLostItem({
-        name: lostName,
-        description: lostDesc,
-        category: lostCategory,
-        imageUrl: uploaded?.publicUrl,
-      })
+      if (editingLost) {
+        await updateLostItem(editingLost.lostItemId, {
+          name: lostName,
+          description: lostDesc,
+          category: lostCategory,
+          ...(uploaded ? { imageUrl: uploaded.publicUrl } : {}),
+        })
+        if (uploaded) {
+          const oldPath = pathFromPublicUrl(editingLost.imageUrl)
+          if (oldPath) removeImage(oldPath).catch(() => {})
+        }
+      } else {
+        await createLostItem({
+          name: lostName,
+          description: lostDesc,
+          category: lostCategory,
+          imageUrl: uploaded?.publicUrl,
+        })
+      }
       setLostModalOpen(false)
-      setLostName('')
-      setLostDesc('')
-      setLostImage(null)
-      setLostCategory('ELECTRONICS')
+      resetLostForm()
       refreshLost()
     } catch (err) {
       if (uploaded) removeImage(uploaded.path).catch(() => {})
-      setLostError(err instanceof Error ? err.message : '등록에 실패했습니다. 다시 시도해주세요.')
+      setLostError(
+        err instanceof Error
+          ? err.message
+          : editingLost
+            ? '수정에 실패했습니다.'
+            : '등록에 실패했습니다. 다시 시도해주세요.',
+      )
+    } finally {
+      setLostSubmitting(false)
+    }
+  }
+
+  const handleLostDelete = async () => {
+    if (!editingLost) return
+    if (!window.confirm('이 분실물을 삭제하시겠어요?')) return
+    setLostError('')
+    setLostSubmitting(true)
+    try {
+      await deleteLostItem(editingLost.lostItemId)
+      const oldPath = pathFromPublicUrl(editingLost.imageUrl)
+      if (oldPath) removeImage(oldPath).catch(() => {})
+      setLostModalOpen(false)
+      resetLostForm()
+      refreshLost()
+    } catch (err) {
+      setLostError(err instanceof Error ? err.message : '삭제에 실패했습니다.')
     } finally {
       setLostSubmitting(false)
     }
@@ -168,15 +242,19 @@ export default function General() {
         <div className="section-container">
           <div className="section-header">
             <h3>분실물</h3>
-            <button className="btn-black small" onClick={() => setLostModalOpen(true)}>
+            <button className="btn-black small" onClick={openNewLost}>
               + 분실물 등록
             </button>
           </div>
           <div className="grid-container">
             {lostItems.map((item) => (
               <div key={item.lostItemId} className="card-item">
-                <div className="card-info">
-                  <strong>{item.name}</strong>
+                <div
+                  className="card-info"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => openEditLost(item.lostItemId)}
+                >
+                  <strong style={{ textDecoration: 'underline' }}>{item.name}</strong>
                   <span>{item.category ? LOST_CATEGORY_LABELS[item.category] : ''}</span>
                 </div>
                 <div className="card-action">
@@ -254,8 +332,8 @@ export default function General() {
 
       <Modal
         isOpen={lostModalOpen}
-        onClose={() => setLostModalOpen(false)}
-        title="분실물 등록"
+        onClose={() => { setLostModalOpen(false); resetLostForm() }}
+        title={editingLost ? '분실물 수정' : '분실물 등록'}
         description="분실물의 상세 정보를 입력해주세요"
       >
         <form className="modal-form" onSubmit={handleLostSubmit}>
@@ -289,6 +367,10 @@ export default function General() {
               />
               {lostImage ? (
                 <span style={{ fontSize: 13, color: '#333' }}>{lostImage.name}</span>
+              ) : editingLost?.imageUrl ? (
+                <span style={{ fontSize: 13, color: '#888' }}>
+                  기존 이미지 유지 (클릭하여 변경)
+                </span>
               ) : (
                 <>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -317,9 +399,27 @@ export default function General() {
             </div>
           </div>
           {lostError && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{lostError}</p>}
-          <button type="submit" className="btn-black btn-block" disabled={lostSubmitting}>
-            {lostSubmitting ? '등록 중…' : '등록하기'}
-          </button>
+          <div className="login-btn-wrapper" style={{ display: 'flex', gap: 8 }}>
+            <button type="submit" className="btn-black" disabled={lostSubmitting}>
+              {lostSubmitting
+                ? editingLost
+                  ? '저장 중…'
+                  : '등록 중…'
+                : editingLost
+                  ? '수정하기'
+                  : '등록하기'}
+            </button>
+            {editingLost && (
+              <button
+                type="button"
+                className="btn-outline btn-outline--lg"
+                onClick={handleLostDelete}
+                disabled={lostSubmitting}
+              >
+                삭제
+              </button>
+            )}
+          </div>
         </form>
       </Modal>
     </Layout>
