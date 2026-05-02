@@ -11,6 +11,7 @@ import {
   getBooths,
   updateBoothMenuStatus,
 } from '../services/booth'
+import { UploadedImage, removeImage, uploadImage } from '../services/supabase'
 
 type MenuItem = { name: string; price: string }
 
@@ -25,6 +26,8 @@ export default function Booth() {
   const [boothName, setBoothName] = useState('')
   const [boothDesc, setBoothDesc] = useState('')
   const [boothImage, setBoothImage] = useState<File | null>(null)
+  const [boothError, setBoothError] = useState('')
+  const [boothSubmitting, setBoothSubmitting] = useState(false)
 
   const [menuModalOpen, setMenuModalOpen] = useState(false)
   const [mainMenus, setMainMenus] = useState<MenuItem[]>([emptyItem()])
@@ -53,12 +56,28 @@ export default function Booth() {
 
   const handleBoothSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    await createBooth({ name: boothName, description: boothDesc })
-    setBoothModalOpen(false)
-    setBoothName('')
-    setBoothDesc('')
-    setBoothImage(null)
-    refreshBooths()
+    setBoothError('')
+    setBoothSubmitting(true)
+    let uploaded: UploadedImage | null = null
+    try {
+      if (boothImage) uploaded = await uploadImage(boothImage, 'booths')
+      await createBooth({
+        name: boothName,
+        description: boothDesc,
+        imageUrl: uploaded?.publicUrl,
+      })
+      setBoothModalOpen(false)
+      setBoothName('')
+      setBoothDesc('')
+      setBoothImage(null)
+      setBoothError('')
+      refreshBooths()
+    } catch (err) {
+      if (uploaded) removeImage(uploaded.path).catch(() => {})
+      setBoothError(err instanceof Error ? err.message : '등록에 실패했습니다.')
+    } finally {
+      setBoothSubmitting(false)
+    }
   }
 
   const handleMenuSubmit = async (e: FormEvent) => {
@@ -195,7 +214,7 @@ export default function Booth() {
 
       <Modal
         isOpen={boothModalOpen}
-        onClose={() => { setBoothModalOpen(false); setBoothName(''); setBoothDesc(''); setBoothImage(null) }}
+        onClose={() => { setBoothModalOpen(false); setBoothName(''); setBoothDesc(''); setBoothImage(null); setBoothError('') }}
         title="부스 정보 등록"
         description="축제에 참여하는 부스의 상세 정보를 입력해주세요"
       >
@@ -244,7 +263,10 @@ export default function Booth() {
               )}
             </label>
           </div>
-          <button type="submit" className="btn-black btn-block">등록하기</button>
+          {boothError && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{boothError}</p>}
+          <button type="submit" className="btn-black btn-block" disabled={boothSubmitting}>
+            {boothSubmitting ? '등록 중…' : '등록하기'}
+          </button>
         </form>
       </Modal>
 

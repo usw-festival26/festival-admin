@@ -19,6 +19,7 @@ import {
   getLostItems,
   updateLostItemStatus,
 } from '../services/lost'
+import { UploadedImage, removeImage, uploadImage } from '../services/supabase'
 
 export default function General() {
   const [notices, setNotices] = useState<NoticeSummary[]>([])
@@ -37,6 +38,7 @@ export default function General() {
   const [lostCategory, setLostCategory] = useState<LostItemCategory>('ELECTRONICS')
   const [noticeError, setNoticeError] = useState('')
   const [lostError, setLostError] = useState('')
+  const [lostSubmitting, setLostSubmitting] = useState(false)
 
   const refreshNotices = () => getNotices().then((res) => setNotices(res.data))
   const refreshLost = () => getLostItems().then((res) => setLostItems(res.data))
@@ -100,16 +102,27 @@ export default function General() {
   const handleLostSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setLostError('')
+    setLostSubmitting(true)
+    let uploaded: UploadedImage | null = null
     try {
-      await createLostItem({ name: lostName, description: lostDesc, category: lostCategory })
+      if (lostImage) uploaded = await uploadImage(lostImage, 'lost-items')
+      await createLostItem({
+        name: lostName,
+        description: lostDesc,
+        category: lostCategory,
+        imageUrl: uploaded?.publicUrl,
+      })
       setLostModalOpen(false)
       setLostName('')
       setLostDesc('')
       setLostImage(null)
       setLostCategory('ELECTRONICS')
       refreshLost()
-    } catch {
-      setLostError('등록에 실패했습니다. 다시 시도해주세요.')
+    } catch (err) {
+      if (uploaded) removeImage(uploaded.path).catch(() => {})
+      setLostError(err instanceof Error ? err.message : '등록에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setLostSubmitting(false)
     }
   }
 
@@ -304,7 +317,9 @@ export default function General() {
             </div>
           </div>
           {lostError && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{lostError}</p>}
-          <button type="submit" className="btn-black btn-block">등록하기</button>
+          <button type="submit" className="btn-black btn-block" disabled={lostSubmitting}>
+            {lostSubmitting ? '등록 중…' : '등록하기'}
+          </button>
         </form>
       </Modal>
     </Layout>
