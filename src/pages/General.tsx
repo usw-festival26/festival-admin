@@ -197,8 +197,12 @@ export default function General() {
 
   const toggleCollected = async (item: LostItemSummary) => {
     const nextStatus = item.status === 'CLAIMED' ? 'STORED' : 'CLAIMED'
-    await updateLostItemStatus(item.lostItemId, nextStatus)
-    refreshLost()
+    try {
+      await updateLostItemStatus(item.lostItemId, nextStatus)
+      refreshLost()
+    } catch {
+      alert('상태 변경에 실패했습니다.')
+    }
   }
 
   return (

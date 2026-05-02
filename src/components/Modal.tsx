@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useId, useRef } from 'react'
+import { ReactNode, useEffect, useId, useRef, useCallback } from 'react'
 
 interface ModalProps {
   isOpen: boolean
@@ -20,6 +20,10 @@ const FOCUSABLE_SELECTOR = [
 export default function Modal({ isOpen, onClose, title, description, children }: ModalProps) {
   const titleId = useId()
   const contentRef = useRef<HTMLDivElement | null>(null)
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onCloseRef.current = onClose }, [onClose])
+
+  const stableOnClose = useCallback(() => onCloseRef.current(), [])
 
   useEffect(() => {
     if (!isOpen) return
@@ -38,7 +42,7 @@ export default function Modal({ isOpen, onClose, title, description, children }:
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation()
-        onClose()
+        stableOnClose()
         return
       }
       if (e.key !== 'Tab') return
@@ -68,7 +72,7 @@ export default function Modal({ isOpen, onClose, title, description, children }:
       document.removeEventListener('keydown', handleKeyDown)
       previouslyFocused?.focus?.()
     }
-  }, [isOpen, onClose])
+  }, [isOpen, stableOnClose])
 
   if (!isOpen) return null
 

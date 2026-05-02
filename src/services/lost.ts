@@ -62,10 +62,12 @@ export const createLostItem = (data: LostItemCreateInput) =>
 export const updateLostItem = (lostItemId: number, data: LostItemUpdateInput) =>
   USE_MOCK
     ? mockUpdateLostItem(lostItemId, data)
-    : api.put<LostItemDetail>(`/api/admin/lost-items/${lostItemId}`, data)
+    : api.patch<LostItemDetail>(`/api/admin/lost-items/${lostItemId}`, data)
 
 export const updateLostItemStatus = (lostItemId: number, status: LostItemStatus) =>
-  updateLostItem(lostItemId, { status })
+  USE_MOCK
+    ? mockUpdateLostItem(lostItemId, { status })
+    : api.patch<void>(`/api/admin/lost-items/${lostItemId}/status`, { status })
 
 export const deleteLostItem = (lostItemId: number) =>
   USE_MOCK

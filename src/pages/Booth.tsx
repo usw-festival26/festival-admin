@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useState, memo } from 'react'
 import Layout from '../components/Layout'
 import Modal from '../components/Modal'
 import {
@@ -20,6 +20,78 @@ import { UploadedImage, pathFromPublicUrl, removeImage, uploadImage } from '../s
 type MenuItem = { name: string; price: string; image: File | null }
 
 const emptyItem = (): MenuItem => ({ name: '', price: '', image: null })
+
+const MenuCategorySection = memo(function MenuCategorySection({
+  label,
+  items,
+  setItems,
+}: {
+  label: string
+  items: MenuItem[]
+  setItems: (v: MenuItem[]) => void
+}) {
+  const updateItem = (idx: number, field: 'name' | 'price', value: string) => {
+    setItems(items.map((m, i) => (i === idx ? { ...m, [field]: value } : m)))
+  }
+  const updateItemImage = (idx: number, image: File | null) => {
+    setItems(items.map((m, i) => (i === idx ? { ...m, image } : m)))
+  }
+  return (
+    <div className="form-group">
+      <label>{label}</label>
+      {items.map((item, i) => (
+        <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <input
+            type="text"
+            placeholder="예 : 김치볶음밥"
+            value={item.name}
+            onChange={(e) => updateItem(i, 'name', e.target.value)}
+            style={{ flex: 1 }}
+          />
+          <input
+            type="text"
+            placeholder="가격"
+            value={item.price}
+            onChange={(e) => updateItem(i, 'price', e.target.value)}
+            style={{ width: 90 }}
+          />
+          <label
+            title={item.image ? item.image.name : '이미지 추가'}
+            style={{
+              width: 40,
+              flexShrink: 0,
+              border: '1px solid #ddd',
+              borderRadius: 6,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: 14,
+              color: item.image ? '#22c55e' : '#aaa',
+              background: '#fff',
+            }}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => updateItemImage(i, e.target.files?.[0] ?? null)}
+            />
+            {item.image ? '✓' : '📷'}
+          </label>
+        </div>
+      ))}
+      <button
+        type="button"
+        className="btn-outline"
+        style={{ width: '100%', fontSize: 13, color: '#aaa', borderColor: '#ddd' }}
+        onClick={() => setItems([...items, emptyItem()])}
+      >
+        + 메뉴 추가
+      </button>
+    </div>
+  )
+})
 
 export default function Booth() {
   const [booths, setBooths] = useState<BoothSummary[]>([])
@@ -91,6 +163,10 @@ export default function Booth() {
   const handleBoothSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setBoothError('')
+    if (!editingBooth && !boothImage) {
+      setBoothError('대표 이미지를 선택해주세요.')
+      return
+    }
     setBoothSubmitting(true)
     let uploaded: UploadedImage | null = null
     try {
@@ -191,92 +267,7 @@ export default function Booth() {
     refreshMenus(selectedBoothId)
   }
 
-  const updateItem = (
-    list: MenuItem[],
-    setList: (v: MenuItem[]) => void,
-    idx: number,
-    field: 'name' | 'price',
-    value: string,
-  ) => {
-    const next = list.map((m, i) => (i === idx ? { ...m, [field]: value } : m))
-    setList(next)
-  }
-
-  const updateItemImage = (
-    list: MenuItem[],
-    setList: (v: MenuItem[]) => void,
-    idx: number,
-    image: File | null,
-  ) => {
-    const next = list.map((m, i) => (i === idx ? { ...m, image } : m))
-    setList(next)
-  }
-
   const selectedBooth = booths.find((b) => b.boothId === selectedBoothId)
-
-  const MenuCategorySection = ({
-    label,
-    items,
-    setItems,
-  }: {
-    label: string
-    items: MenuItem[]
-    setItems: (v: MenuItem[]) => void
-  }) => (
-    <div className="form-group">
-      <label>{label}</label>
-      {items.map((item, i) => (
-        <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-          <input
-            type="text"
-            placeholder="예 : 김치볶음밥"
-            value={item.name}
-            onChange={(e) => updateItem(items, setItems, i, 'name', e.target.value)}
-            style={{ flex: 1 }}
-          />
-          <input
-            type="text"
-            placeholder="가격"
-            value={item.price}
-            onChange={(e) => updateItem(items, setItems, i, 'price', e.target.value)}
-            style={{ width: 90 }}
-          />
-          <label
-            title={item.image ? item.image.name : '이미지 추가'}
-            style={{
-              width: 40,
-              flexShrink: 0,
-              border: '1px solid #ddd',
-              borderRadius: 6,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              fontSize: 14,
-              color: item.image ? '#22c55e' : '#aaa',
-              background: '#fff',
-            }}
-          >
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={(e) => updateItemImage(items, setItems, i, e.target.files?.[0] ?? null)}
-            />
-            {item.image ? '✓' : '📷'}
-          </label>
-        </div>
-      ))}
-      <button
-        type="button"
-        className="btn-outline"
-        style={{ width: '100%', fontSize: 13, color: '#aaa', borderColor: '#ddd' }}
-        onClick={() => setItems([...items, emptyItem()])}
-      >
-        + 메뉴 추가
-      </button>
-    </div>
-  )
 
   return (
     <Layout>
@@ -370,7 +361,6 @@ export default function Booth() {
                 accept="image/*"
                 style={{ display: 'none' }}
                 onChange={(e) => setBoothImage(e.target.files?.[0] ?? null)}
-                required={!editingBooth}
               />
               {boothImage ? (
                 <span style={{ fontSize: 13, color: '#333' }}>{boothImage.name}</span>
