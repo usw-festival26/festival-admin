@@ -39,10 +39,16 @@ const boothSeed: BoothDetail[] = [
 ]
 
 const menuSeed: { boothId: number; menu: BoothMenu }[] = [
-  { boothId: 1, menu: { menuId: 1, name: '캐리커쳐', price: 5000, imageUrl: '', status: 'ON_SALE' } },
+  {
+    boothId: 1,
+    menu: { menuId: 1, name: '캐리커쳐', price: 5000, imageUrl: '', status: 'ON_SALE' },
+  },
   { boothId: 2, menu: { menuId: 2, name: '떡볶이', price: 4000, imageUrl: '', status: 'ON_SALE' } },
   { boothId: 2, menu: { menuId: 3, name: '튀김', price: 3000, imageUrl: '', status: 'SOLD_OUT' } },
-  { boothId: 3, menu: { menuId: 4, name: '감자튀김', price: 4000, imageUrl: '', status: 'ON_SALE' } },
+  {
+    boothId: 3,
+    menu: { menuId: 4, name: '감자튀김', price: 4000, imageUrl: '', status: 'ON_SALE' },
+  },
 ]
 
 let boothStore: BoothDetail[] = loadStore<BoothDetail[]>(BOOTH_KEY, boothSeed)

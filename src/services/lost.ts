@@ -57,9 +57,7 @@ export const getLostItemDetail = (lostItemId: number) =>
     : api.get<LostItemDetail>(`/api/admin/lost-items/${lostItemId}`)
 
 export const createLostItem = (data: LostItemCreateInput) =>
-  USE_MOCK
-    ? mockCreateLostItem(data)
-    : api.post<LostItemDetail>('/api/admin/lost-items', data)
+  USE_MOCK ? mockCreateLostItem(data) : api.post<LostItemDetail>('/api/admin/lost-items', data)
 
 export const updateLostItem = (lostItemId: number, data: LostItemUpdateInput) =>
   USE_MOCK

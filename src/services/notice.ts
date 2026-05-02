@@ -29,9 +29,7 @@ export const getNotices = () =>
   USE_MOCK ? mockGetNotices() : api.get<NoticeSummary[]>('/api/admin/notices')
 
 export const getNoticeDetail = (noticeId: number) =>
-  USE_MOCK
-    ? mockGetNoticeDetail(noticeId)
-    : api.get<NoticeDetail>(`/api/admin/notices/${noticeId}`)
+  USE_MOCK ? mockGetNoticeDetail(noticeId) : api.get<NoticeDetail>(`/api/admin/notices/${noticeId}`)
 
 export const createNotice = (data: NoticeSaveInput) =>
   USE_MOCK ? mockCreateNotice(data) : api.post<NoticeDetail>('/api/admin/notices', data)

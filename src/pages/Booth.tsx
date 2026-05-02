@@ -15,12 +15,7 @@ import {
   updateBooth,
   updateBoothMenuStatus,
 } from '../services/booth'
-import {
-  UploadedImage,
-  pathFromPublicUrl,
-  removeImage,
-  uploadImage,
-} from '../services/supabase'
+import { UploadedImage, pathFromPublicUrl, removeImage, uploadImage } from '../services/supabase'
 
 type MenuItem = { name: string; price: string; image: File | null }
 
@@ -47,8 +42,7 @@ export default function Booth() {
   const [menuSubmitting, setMenuSubmitting] = useState(false)
 
   const refreshBooths = () => getBooths().then((res) => setBooths(res.data))
-  const refreshMenus = (boothId: number) =>
-    getBoothMenu(boothId).then((res) => setMenus(res.data))
+  const refreshMenus = (boothId: number) => getBoothMenu(boothId).then((res) => setMenus(res.data))
 
   useEffect(() => {
     refreshBooths()
@@ -159,11 +153,7 @@ export default function Booth() {
     if (selectedBoothId == null) return
     setMenuError('')
     setMenuSubmitting(true)
-    const all = [
-      ...mainMenus,
-      ...subMenus,
-      ...setMenuItems,
-    ].filter((m) => m.name.trim())
+    const all = [...mainMenus, ...subMenus, ...setMenuItems].filter((m) => m.name.trim())
     try {
       for (const m of all) {
         let uploaded: UploadedImage | null = null
@@ -326,10 +316,7 @@ export default function Booth() {
                     <td>-</td>
                     <td>-</td>
                     <td>
-                      <button
-                        className="btn-outline"
-                        onClick={() => openMenuModal(booth.boothId)}
-                      >
+                      <button className="btn-outline" onClick={() => openMenuModal(booth.boothId)}>
                         부스 메뉴 등록
                       </button>
                     </td>
@@ -343,13 +330,18 @@ export default function Booth() {
 
       <Modal
         isOpen={boothModalOpen}
-        onClose={() => { setBoothModalOpen(false); resetBoothForm() }}
+        onClose={() => {
+          setBoothModalOpen(false)
+          resetBoothForm()
+        }}
         title={editingBooth ? '부스 정보 수정' : '부스 정보 등록'}
         description="축제에 참여하는 부스의 상세 정보를 입력해주세요"
       >
         <form className="modal-form" onSubmit={handleBoothSubmit}>
           <div className="form-group">
-            <label>부스 이름 <span className="required">*</span></label>
+            <label>
+              부스 이름 <span className="required">*</span>
+            </label>
             <input
               type="text"
               placeholder="예 : 모여봐요 미대의 숲"
@@ -359,7 +351,9 @@ export default function Booth() {
             />
           </div>
           <div className="form-group">
-            <label>부스 설명 <span className="required">*</span></label>
+            <label>
+              부스 설명 <span className="required">*</span>
+            </label>
             <input
               type="text"
               placeholder="예 : 모여봐요 미대의 숲"
@@ -369,10 +363,7 @@ export default function Booth() {
             />
           </div>
           <div className="form-group">
-            <label>
-              대표 이미지 업로드{' '}
-              {!editingBooth && <span className="required">*</span>}
-            </label>
+            <label>대표 이미지 업로드 {!editingBooth && <span className="required">*</span>}</label>
             <label className="image-upload-box" style={{ height: 297 }}>
               <input
                 type="file"
@@ -389,17 +380,30 @@ export default function Booth() {
                 </span>
               ) : (
                 <>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#bbb"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="17 8 12 3 7 8" />
                     <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
-                  <span style={{ fontSize: 13, color: '#bbb', marginTop: 8 }}>클릭하여 이미지를 선택해주세요</span>
+                  <span style={{ fontSize: 13, color: '#bbb', marginTop: 8 }}>
+                    클릭하여 이미지를 선택해주세요
+                  </span>
                 </>
               )}
             </label>
           </div>
-          {boothError && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{boothError}</p>}
+          {boothError && (
+            <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{boothError}</p>
+          )}
           <div className="login-btn-wrapper" style={{ display: 'flex', gap: 8 }}>
             <button type="submit" className="btn-black" disabled={boothSubmitting}>
               {boothSubmitting
@@ -426,18 +430,24 @@ export default function Booth() {
 
       <Modal
         isOpen={menuModalOpen}
-        onClose={() => { setMenuModalOpen(false); resetMenuForm(); setMenuError('') }}
+        onClose={() => {
+          setMenuModalOpen(false)
+          resetMenuForm()
+          setMenuError('')
+        }}
         title="부스 메뉴 등록"
         description="축제에 참여하는 부스의 상세 정보를 입력해주세요"
       >
         <form className="modal-form" onSubmit={handleMenuSubmit}>
-          {selectedBooth && (
-            <div className="booth-name-badge">{selectedBooth.name}</div>
-          )}
+          {selectedBooth && <div className="booth-name-badge">{selectedBooth.name}</div>}
 
           <MenuCategorySection label="부스 메인메뉴" items={mainMenus} setItems={setMainMenus} />
           <MenuCategorySection label="부스 서브메뉴" items={subMenus} setItems={setSubMenus} />
-          <MenuCategorySection label="부스 세트메뉴" items={setMenuItems} setItems={setSetMenuItems} />
+          <MenuCategorySection
+            label="부스 세트메뉴"
+            items={setMenuItems}
+            setItems={setSetMenuItems}
+          />
 
           {menus.length > 0 && (
             <div className="form-group">
@@ -453,8 +463,16 @@ export default function Booth() {
                       <button
                         type="button"
                         onClick={() => handleDeleteMenu(menu.menuId)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e74c3c', fontSize: 16 }}
-                      >🗑</button>
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#e74c3c',
+                          fontSize: 16,
+                        }}
+                      >
+                        🗑
+                      </button>
                       <span style={{ fontSize: 12 }}>품절</span>
                       <label className="switch">
                         <input

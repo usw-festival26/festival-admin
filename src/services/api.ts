@@ -4,7 +4,6 @@ import { ROLE_STORAGE_KEY } from './env'
 const baseURL = import.meta.env.VITE_API_URL ?? ''
 
 if (!baseURL && import.meta.env.DEV) {
-  // eslint-disable-next-line no-console
   console.info('[api] VITE_API_URL is empty — using same-origin requests (dev proxy 경로).')
 }
 

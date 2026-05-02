@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useId, useRef } from 'react'
 
 interface ModalProps {
   isOpen: boolean
@@ -8,7 +8,68 @@ interface ModalProps {
   children: ReactNode
 }
 
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'textarea:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
+
 export default function Modal({ isOpen, onClose, title, description, children }: ModalProps) {
+  const titleId = useId()
+  const contentRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const previouslyFocused = document.activeElement as HTMLElement | null
+
+    // 모달 첫 렌더 후 첫 포커스 가능한 요소로 이동.
+    requestAnimationFrame(() => {
+      const node = contentRef.current
+      if (!node) return
+      const focusables = node.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+      const first = focusables[0] ?? node.querySelector<HTMLElement>('.modal-close-btn')
+      first?.focus()
+    })
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const node = contentRef.current
+      if (!node) return
+      const focusables = Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+        (el) => !el.hasAttribute('disabled') && el.tabIndex !== -1,
+      )
+      if (focusables.length === 0) {
+        e.preventDefault()
+        return
+      }
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      const active = document.activeElement as HTMLElement | null
+      if (e.shiftKey && active === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      previouslyFocused?.focus?.()
+    }
+  }, [isOpen, onClose])
+
   if (!isOpen) return null
 
   return (
@@ -18,13 +79,21 @@ export default function Modal({ isOpen, onClose, title, description, children }:
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="modal-content">
+      <div
+        ref={contentRef}
+        className="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
         <div className="modal-header">
           <div className="header-text">
-            <h2>{title}</h2>
+            <h2 id={titleId}>{title}</h2>
             {description && <p>{description}</p>}
           </div>
-          <button className="modal-close-btn" onClick={onClose}>×</button>
+          <button type="button" className="modal-close-btn" onClick={onClose} aria-label="닫기">
+            ×
+          </button>
         </div>
         {children}
       </div>

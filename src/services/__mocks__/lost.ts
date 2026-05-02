@@ -82,10 +82,7 @@ export const mockCreateLostItem = (data: LostItemCreateInput) => {
   return mockResponse<LostItemDetail>(created)
 }
 
-export const mockUpdateLostItem = (
-  lostItemId: number,
-  data: LostItemUpdateInput,
-) => {
+export const mockUpdateLostItem = (lostItemId: number, data: LostItemUpdateInput) => {
   const idx = store.findIndex((x) => x.lostItemId === lostItemId)
   if (idx < 0) return Promise.reject(new Error('LostItem not found'))
   store[idx] = { ...store[idx], ...data }

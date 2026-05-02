@@ -23,12 +23,7 @@ import {
   updateLostItem,
   updateLostItemStatus,
 } from '../services/lost'
-import {
-  UploadedImage,
-  pathFromPublicUrl,
-  removeImage,
-  uploadImage,
-} from '../services/supabase'
+import { UploadedImage, pathFromPublicUrl, removeImage, uploadImage } from '../services/supabase'
 
 export default function General() {
   const [notices, setNotices] = useState<NoticeSummary[]>([])
@@ -272,7 +267,6 @@ export default function General() {
             ))}
           </div>
         </div>
-
       </section>
 
       <Modal
@@ -286,7 +280,9 @@ export default function General() {
       >
         <form className="modal-form" onSubmit={handleNoticeSubmit}>
           <div className="form-group">
-            <label>공지 제목 <span className="required">*</span></label>
+            <label>
+              공지 제목 <span className="required">*</span>
+            </label>
             <input
               type="text"
               placeholder="공지 제목을 입력해주세요"
@@ -296,7 +292,9 @@ export default function General() {
             />
           </div>
           <div className="form-group">
-            <label>공지 내용 <span className="required">*</span></label>
+            <label>
+              공지 내용 <span className="required">*</span>
+            </label>
             <input
               type="text"
               placeholder="공지 내용을 입력해주세요"
@@ -306,7 +304,15 @@ export default function General() {
             />
           </div>
           <div className="form-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 16 }}>
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontWeight: 700,
+                fontSize: 16,
+              }}
+            >
               <input
                 type="checkbox"
                 checked={noticePinned}
@@ -316,13 +322,19 @@ export default function General() {
               상단 고정
             </label>
           </div>
-          {noticeError && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{noticeError}</p>}
+          {noticeError && (
+            <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{noticeError}</p>
+          )}
           <div className="login-btn-wrapper" style={{ display: 'flex', gap: 8 }}>
             <button type="submit" className="btn-black">
               {editingNotice ? '수정하기' : '등록하기'}
             </button>
             {editingNotice && (
-              <button type="button" className="btn-outline btn-outline--lg" onClick={handleNoticeDelete}>
+              <button
+                type="button"
+                className="btn-outline btn-outline--lg"
+                onClick={handleNoticeDelete}
+              >
                 삭제
               </button>
             )}
@@ -332,13 +344,18 @@ export default function General() {
 
       <Modal
         isOpen={lostModalOpen}
-        onClose={() => { setLostModalOpen(false); resetLostForm() }}
+        onClose={() => {
+          setLostModalOpen(false)
+          resetLostForm()
+        }}
         title={editingLost ? '분실물 수정' : '분실물 등록'}
         description="분실물의 상세 정보를 입력해주세요"
       >
         <form className="modal-form" onSubmit={handleLostSubmit}>
           <div className="form-group">
-            <label>분실물 이름 <span className="required">*</span></label>
+            <label>
+              분실물 이름 <span className="required">*</span>
+            </label>
             <input
               type="text"
               placeholder="예 : 에어팟"
@@ -373,12 +390,23 @@ export default function General() {
                 </span>
               ) : (
                 <>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#bbb"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="17 8 12 3 7 8" />
                     <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
-                  <span style={{ fontSize: 13, color: '#bbb', marginTop: 8 }}>클릭하여 이미지를 선택해주세요</span>
+                  <span style={{ fontSize: 13, color: '#bbb', marginTop: 8 }}>
+                    클릭하여 이미지를 선택해주세요
+                  </span>
                 </>
               )}
             </label>

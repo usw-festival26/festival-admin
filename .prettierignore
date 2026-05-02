@@ -1,0 +1,6 @@
+dist
+node_modules
+coverage
+.cache
+public
+src/types/api.d.ts

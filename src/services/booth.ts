@@ -59,9 +59,7 @@ export const getBooths = () =>
   USE_MOCK ? mockGetBooths() : api.get<BoothSummary[]>('/api/admin/booths')
 
 export const getBoothDetail = (boothId: number) =>
-  USE_MOCK
-    ? mockGetBoothDetail(boothId)
-    : api.get<BoothDetail>(`/api/admin/booths/${boothId}`)
+  USE_MOCK ? mockGetBoothDetail(boothId) : api.get<BoothDetail>(`/api/admin/booths/${boothId}`)
 
 export const createBooth = (data: BoothCreateInput) =>
   USE_MOCK ? mockCreateBooth(data) : api.post<BoothDetail>('/api/admin/booths', data)
@@ -75,20 +73,14 @@ export const deleteBooth = (boothId: number) =>
   USE_MOCK ? mockDeleteBooth(boothId) : api.delete<void>(`/api/admin/booths/${boothId}`)
 
 export const getBoothMenu = (boothId: number) =>
-  USE_MOCK
-    ? mockGetBoothMenu(boothId)
-    : api.get<BoothMenu[]>(`/api/admin/booths/${boothId}/menus`)
+  USE_MOCK ? mockGetBoothMenu(boothId) : api.get<BoothMenu[]>(`/api/admin/booths/${boothId}/menus`)
 
 export const createBoothMenu = (boothId: number, data: BoothMenuCreateInput) =>
   USE_MOCK
     ? mockCreateBoothMenu(boothId, data)
     : api.post<BoothMenu>(`/api/admin/booths/${boothId}/menus`, data)
 
-export const updateBoothMenu = (
-  boothId: number,
-  menuId: number,
-  data: BoothMenuUpdateInput,
-) =>
+export const updateBoothMenu = (boothId: number, menuId: number, data: BoothMenuUpdateInput) =>
   USE_MOCK
     ? mockUpdateBoothMenu(boothId, menuId, data)
     : api.patch<BoothMenu>(`/api/admin/booths/${boothId}/menus/${menuId}`, data)
@@ -98,14 +90,7 @@ export const deleteBoothMenu = (boothId: number, menuId: number) =>
     ? mockDeleteBoothMenu(boothId, menuId)
     : api.delete<void>(`/api/admin/booths/${boothId}/menus/${menuId}`)
 
-export const updateBoothMenuStatus = (
-  boothId: number,
-  menuId: number,
-  status: BoothMenuStatus,
-) =>
+export const updateBoothMenuStatus = (boothId: number, menuId: number, status: BoothMenuStatus) =>
   USE_MOCK
     ? mockUpdateBoothMenuStatus(boothId, menuId, status)
-    : api.patch<BoothMenu>(
-        `/api/admin/booths/${boothId}/menus/${menuId}/status`,
-        { status },
-      )
+    : api.patch<BoothMenu>(`/api/admin/booths/${boothId}/menus/${menuId}/status`, { status })
