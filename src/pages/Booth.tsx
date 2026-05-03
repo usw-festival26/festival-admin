@@ -2,9 +2,12 @@ import { FormEvent, useEffect, useState, memo } from 'react'
 import Layout from '../components/Layout'
 import Modal from '../components/Modal'
 import {
+  BoothCollege,
   BoothDetail,
   BoothMenu,
   BoothSummary,
+  BOOTH_COLLEGE_LABELS,
+  BOOTH_COLLEGE_VALUES,
   createBooth,
   createBoothMenu,
   deleteBooth,
@@ -102,6 +105,7 @@ export default function Booth() {
   const [boothName, setBoothName] = useState('')
   const [boothDesc, setBoothDesc] = useState('')
   const [boothImage, setBoothImage] = useState<File | null>(null)
+  const [boothCollege, setBoothCollege] = useState<BoothCollege>('ICT')
   const [boothError, setBoothError] = useState('')
   const [boothSubmitting, setBoothSubmitting] = useState(false)
   const [editingBooth, setEditingBooth] = useState<BoothDetail | null>(null)
@@ -136,6 +140,7 @@ export default function Booth() {
     setBoothName('')
     setBoothDesc('')
     setBoothImage(null)
+    setBoothCollege('ICT')
     setBoothError('')
     setEditingBooth(null)
   }
@@ -151,6 +156,7 @@ export default function Booth() {
       setEditingBooth(res.data)
       setBoothName(res.data.name)
       setBoothDesc(res.data.description)
+      setBoothCollege(res.data.college ?? 'ICT')
       setBoothImage(null)
       setBoothError('')
       setBoothModalOpen(true)
@@ -175,6 +181,7 @@ export default function Booth() {
         await updateBooth(editingBooth.boothId, {
           name: boothName,
           description: boothDesc,
+          college: boothCollege,
           ...(uploaded ? { imageUrl: uploaded.publicUrl } : {}),
         })
         if (uploaded) {
@@ -185,6 +192,7 @@ export default function Booth() {
         await createBooth({
           name: boothName,
           description: boothDesc,
+          college: boothCollege,
           imageUrl: uploaded?.publicUrl,
         })
       }
@@ -247,8 +255,13 @@ export default function Booth() {
       }
       resetMenuForm()
       refreshMenus(selectedBoothId)
-    } catch (err) {
-      setMenuError(err instanceof Error ? err.message : '메뉴 등록에 실패했습니다.')
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string; code?: string } } }
+      const msg =
+        axiosErr?.response?.data?.message ||
+        axiosErr?.response?.data?.code ||
+        (err instanceof Error ? err.message : '메뉴 등록에 실패했습니다.')
+      setMenuError(msg)
     } finally {
       setMenuSubmitting(false)
     }
@@ -354,6 +367,18 @@ export default function Booth() {
             />
           </div>
           <div className="form-group">
+            <label>단과대 <span className="required">*</span></label>
+            <select
+              value={boothCollege}
+              onChange={(e) => setBoothCollege(e.target.value as BoothCollege)}
+              required
+            >
+              {BOOTH_COLLEGE_VALUES.map((col) => (
+                <option key={col} value={col}>{BOOTH_COLLEGE_LABELS[col]}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
             <label>대표 이미지 업로드 {!editingBooth && <span className="required">*</span>}</label>
             <label className="image-upload-box" style={{ height: 297 }}>
               <input
@@ -404,16 +429,6 @@ export default function Booth() {
                   ? '수정하기'
                   : '등록하기'}
             </button>
-            {editingBooth && (
-              <button
-                type="button"
-                className="btn-outline btn-outline--lg"
-                onClick={handleBoothDelete}
-                disabled={boothSubmitting}
-              >
-                삭제
-              </button>
-            )}
           </div>
         </form>
       </Modal>
@@ -428,7 +443,15 @@ export default function Booth() {
         title="부스 메뉴 등록"
         description="축제에 참여하는 부스의 상세 정보를 입력해주세요"
       >
-        <form className="modal-form" onSubmit={handleMenuSubmit}>
+        <form
+          className="modal-form"
+          onSubmit={handleMenuSubmit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'BUTTON') {
+              e.preventDefault()
+            }
+          }}
+        >
           {selectedBooth && <div className="booth-name-badge">{selectedBooth.name}</div>}
 
           <MenuCategorySection label="부스 메인메뉴" items={mainMenus} setItems={setMainMenus} />

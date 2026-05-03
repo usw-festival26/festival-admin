@@ -13,21 +13,39 @@ import {
   mockUpdateBoothMenuStatus,
 } from './__mocks__/booth'
 
+export type BoothCollege = 'HUMANITIES' | 'BUSINESS' | 'LIFE' | 'ICT' | 'DESIGN' | 'MUSIC' | 'ENGINEERING'
+
+export const BOOTH_COLLEGE_LABELS: Record<BoothCollege, string> = {
+  HUMANITIES: '인문대학',
+  BUSINESS: '경영대학',
+  LIFE: '생활과학대학',
+  ICT: 'ICT융합대학',
+  DESIGN: '조형예술대학',
+  MUSIC: '음악대학',
+  ENGINEERING: '공과대학',
+}
+
+export const BOOTH_COLLEGE_VALUES = Object.keys(BOOTH_COLLEGE_LABELS) as BoothCollege[]
+
 export interface BoothSummary {
   boothId: number
   name: string
   imageUrl?: string
+  college?: BoothCollege
 }
 
 export interface BoothDetail extends BoothSummary {
   description: string
   notice?: string
+  college: BoothCollege
+  collegeLabel?: string
 }
 
 export interface BoothCreateInput {
   name: string
   description: string
   imageUrl?: string
+  college: BoothCollege
 }
 
 export type BoothUpdateInput = Partial<BoothCreateInput>
