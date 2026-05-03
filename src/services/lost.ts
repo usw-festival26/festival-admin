@@ -2,9 +2,10 @@ import api from './api'
 import { USE_MOCK } from './env'
 import {
   mockCreateLostItem,
+  mockDeleteLostItem,
   mockGetLostItemDetail,
   mockGetLostItems,
-  mockUpdateLostItemStatus,
+  mockUpdateLostItem,
 } from './__mocks__/lost'
 
 export type LostItemStatus = 'STORED' | 'CLAIMED' | string
@@ -23,7 +24,6 @@ export const LOST_CATEGORY_VALUES = Object.keys(LOST_CATEGORY_LABELS) as LostIte
 export interface LostItemSummary {
   lostItemId: number
   name: string
-  storageLocation?: string
   status: LostItemStatus
   imageUrl?: string
   category?: LostItemCategory
@@ -40,35 +40,36 @@ export interface LostItemCreateInput {
   imageUrl?: string
 }
 
-export interface LostItemStatusUpdateInput {
-  status: LostItemStatus
-  note?: string
-}
-
-export interface LostItemStatusUpdateResponse {
-  lostItemId: number
-  status: LostItemStatus
-  updatedAt: string
+export interface LostItemUpdateInput {
+  name?: string
+  description?: string
+  category?: LostItemCategory
+  status?: LostItemStatus
+  imageUrl?: string
 }
 
 export const getLostItems = () =>
-  USE_MOCK ? mockGetLostItems() : api.get<LostItemSummary[]>('/api/lost-items')
+  USE_MOCK ? mockGetLostItems() : api.get<LostItemSummary[]>('/api/admin/lost-items')
 
 export const getLostItemDetail = (lostItemId: number) =>
   USE_MOCK
     ? mockGetLostItemDetail(lostItemId)
-    : api.get<LostItemDetail>(`/api/lost-items/${lostItemId}`)
+    : api.get<LostItemDetail>(`/api/admin/lost-items/${lostItemId}`)
 
 export const createLostItem = (data: LostItemCreateInput) =>
-  USE_MOCK ? mockCreateLostItem(data) : api.post<LostItemDetail>('/admin/lost-items', data)
+  USE_MOCK ? mockCreateLostItem(data) : api.post<LostItemDetail>('/api/admin/lost-items', data)
 
-export const updateLostItemStatus = (
-  lostItemId: number,
-  data: LostItemStatusUpdateInput,
-) =>
+export const updateLostItem = (lostItemId: number, data: LostItemUpdateInput) =>
   USE_MOCK
-    ? mockUpdateLostItemStatus(lostItemId, data)
-    : api.patch<LostItemStatusUpdateResponse>(
-        `/admin/lost-items/${lostItemId}/status`,
-        data,
-      )
+    ? mockUpdateLostItem(lostItemId, data)
+    : api.patch<LostItemDetail>(`/api/admin/lost-items/${lostItemId}`, data)
+
+export const updateLostItemStatus = (lostItemId: number, status: LostItemStatus) =>
+  USE_MOCK
+    ? mockUpdateLostItem(lostItemId, { status })
+    : api.patch<void>(`/api/admin/lost-items/${lostItemId}/status`, { status })
+
+export const deleteLostItem = (lostItemId: number) =>
+  USE_MOCK
+    ? mockDeleteLostItem(lostItemId)
+    : api.delete<void>(`/api/admin/lost-items/${lostItemId}`)

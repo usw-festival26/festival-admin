@@ -3,6 +3,7 @@ import type {
   BoothDetail,
   BoothMenu,
   BoothMenuCreateInput,
+  BoothMenuStatus,
   BoothMenuUpdateInput,
   BoothSummary,
   BoothUpdateInput,
@@ -38,17 +39,27 @@ const boothSeed: BoothDetail[] = [
 ]
 
 const menuSeed: { boothId: number; menu: BoothMenu }[] = [
-  { boothId: 1, menu: { menuId: 1, name: '캐리커쳐', price: 5000, description: '즉석 캐리커쳐', imageUrl: '', status: '판매 중' } },
-  { boothId: 2, menu: { menuId: 2, name: '떡볶이', price: 4000, description: '매운맛/순한맛', imageUrl: '', status: '판매 중' } },
-  { boothId: 2, menu: { menuId: 3, name: '튀김', price: 3000, description: '모둠튀김', imageUrl: '', status: '품절' } },
-  { boothId: 3, menu: { menuId: 4, name: '감자튀김', price: 4000, description: '', imageUrl: '', status: '판매 중' } },
+  {
+    boothId: 1,
+    menu: { menuId: 1, name: '캐리커쳐', price: 5000, imageUrl: '', status: 'ON_SALE' },
+  },
+  { boothId: 2, menu: { menuId: 2, name: '떡볶이', price: 4000, imageUrl: '', status: 'ON_SALE' } },
+  { boothId: 2, menu: { menuId: 3, name: '튀김', price: 3000, imageUrl: '', status: 'SOLD_OUT' } },
+  {
+    boothId: 3,
+    menu: { menuId: 4, name: '감자튀김', price: 4000, imageUrl: '', status: 'ON_SALE' },
+  },
 ]
 
 let boothStore: BoothDetail[] = loadStore<BoothDetail[]>(BOOTH_KEY, boothSeed)
 let menuStore: { boothId: number; menu: BoothMenu }[] = loadStore(MENU_KEY, menuSeed)
 
-function persistBooths() { saveStore(BOOTH_KEY, boothStore) }
-function persistMenus() { saveStore(MENU_KEY, menuStore) }
+function persistBooths() {
+  saveStore(BOOTH_KEY, boothStore)
+}
+function persistMenus() {
+  saveStore(MENU_KEY, menuStore)
+}
 
 function toSummary(b: BoothDetail): BoothSummary {
   return { boothId: b.boothId, name: b.name, imageUrl: b.imageUrl }
@@ -65,7 +76,9 @@ export const mockGetBoothDetail = (boothId: number) => {
 export const mockCreateBooth = (data: BoothCreateInput) => {
   const created: BoothDetail = {
     boothId: nextId(boothStore as unknown as { [k: string]: unknown }[], 'boothId'),
-    ...data,
+    name: data.name,
+    description: data.description,
+    imageUrl: data.imageUrl,
   }
   boothStore = [...boothStore, created]
   persistBooths()
@@ -80,6 +93,16 @@ export const mockUpdateBooth = (boothId: number, data: BoothUpdateInput) => {
   return mockResponse<BoothDetail>(boothStore[idx])
 }
 
+export const mockDeleteBooth = (boothId: number) => {
+  const before = boothStore.length
+  boothStore = boothStore.filter((x) => x.boothId !== boothId)
+  if (boothStore.length === before) return Promise.reject(new Error('Booth not found'))
+  menuStore = menuStore.filter((m) => m.boothId !== boothId)
+  persistBooths()
+  persistMenus()
+  return mockResponse<void>(undefined as unknown as void)
+}
+
 export const mockGetBoothMenu = (boothId: number) => {
   const menus = menuStore.filter((m) => m.boothId === boothId).map((m) => m.menu)
   return mockResponse<BoothMenu[]>(menus)
@@ -89,7 +112,10 @@ export const mockCreateBoothMenu = (boothId: number, data: BoothMenuCreateInput)
   const flatMenus = menuStore.map((m) => m.menu)
   const created: BoothMenu = {
     menuId: nextId(flatMenus as unknown as { [k: string]: unknown }[], 'menuId'),
-    ...data,
+    name: data.name,
+    price: data.price,
+    imageUrl: data.imageUrl,
+    status: 'ON_SALE',
   }
   menuStore = [...menuStore, { boothId, menu: created }]
   persistMenus()
@@ -104,6 +130,26 @@ export const mockUpdateBoothMenu = (
   const idx = menuStore.findIndex((m) => m.boothId === boothId && m.menu.menuId === menuId)
   if (idx < 0) return Promise.reject(new Error('Menu not found'))
   menuStore[idx] = { boothId, menu: { ...menuStore[idx].menu, ...data } }
+  persistMenus()
+  return mockResponse<BoothMenu>(menuStore[idx].menu)
+}
+
+export const mockDeleteBoothMenu = (boothId: number, menuId: number) => {
+  const before = menuStore.length
+  menuStore = menuStore.filter((m) => !(m.boothId === boothId && m.menu.menuId === menuId))
+  if (menuStore.length === before) return Promise.reject(new Error('Menu not found'))
+  persistMenus()
+  return mockResponse<void>(undefined as unknown as void)
+}
+
+export const mockUpdateBoothMenuStatus = (
+  boothId: number,
+  menuId: number,
+  status: BoothMenuStatus,
+) => {
+  const idx = menuStore.findIndex((m) => m.boothId === boothId && m.menu.menuId === menuId)
+  if (idx < 0) return Promise.reject(new Error('Menu not found'))
+  menuStore[idx] = { boothId, menu: { ...menuStore[idx].menu, status } }
   persistMenus()
   return mockResponse<BoothMenu>(menuStore[idx].menu)
 }

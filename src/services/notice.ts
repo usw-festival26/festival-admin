@@ -17,38 +17,27 @@ export interface NoticeSummary {
 
 export interface NoticeDetail extends NoticeSummary {
   content: string
-  updatedAt?: string
 }
 
-export interface NoticeCreateInput {
+export interface NoticeSaveInput {
   title: string
   content: string
-  pinned?: boolean
-}
-
-export type NoticeUpdateInput = Partial<NoticeCreateInput>
-
-export interface NoticeDeleteResponse {
-  message: string
-  noticeId: number
-  deletedAt: string
+  pinned: boolean
 }
 
 export const getNotices = () =>
-  USE_MOCK ? mockGetNotices() : api.get<NoticeSummary[]>('/api/notices')
+  USE_MOCK ? mockGetNotices() : api.get<NoticeSummary[]>('/api/admin/notices')
 
 export const getNoticeDetail = (noticeId: number) =>
-  USE_MOCK ? mockGetNoticeDetail(noticeId) : api.get<NoticeDetail>(`/api/notices/${noticeId}`)
+  USE_MOCK ? mockGetNoticeDetail(noticeId) : api.get<NoticeDetail>(`/api/admin/notices/${noticeId}`)
 
-export const createNotice = (data: NoticeCreateInput) =>
-  USE_MOCK ? mockCreateNotice(data) : api.post<NoticeDetail>('/admin/notices', data)
+export const createNotice = (data: NoticeSaveInput) =>
+  USE_MOCK ? mockCreateNotice(data) : api.post<NoticeDetail>('/api/admin/notices', data)
 
-export const updateNotice = (noticeId: number, data: NoticeUpdateInput) =>
+export const updateNotice = (noticeId: number, data: NoticeSaveInput) =>
   USE_MOCK
     ? mockUpdateNotice(noticeId, data)
-    : api.patch<NoticeDetail>(`/admin/notices/${noticeId}`, data)
+    : api.put<NoticeDetail>(`/api/admin/notices/${noticeId}`, data)
 
 export const deleteNotice = (noticeId: number) =>
-  USE_MOCK
-    ? mockDeleteNotice(noticeId)
-    : api.delete<NoticeDeleteResponse>(`/admin/notices/${noticeId}`)
+  USE_MOCK ? mockDeleteNotice(noticeId) : api.delete<void>(`/api/admin/notices/${noticeId}`)

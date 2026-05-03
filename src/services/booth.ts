@@ -3,42 +3,64 @@ import { USE_MOCK } from './env'
 import {
   mockCreateBooth,
   mockCreateBoothMenu,
+  mockDeleteBooth,
+  mockDeleteBoothMenu,
   mockGetBoothDetail,
   mockGetBoothMenu,
   mockGetBooths,
   mockUpdateBooth,
   mockUpdateBoothMenu,
+  mockUpdateBoothMenuStatus,
 } from './__mocks__/booth'
+
+export type BoothCollege = 'HUMANITIES' | 'BUSINESS' | 'LIFE' | 'ICT' | 'DESIGN' | 'MUSIC' | 'ENGINEERING'
+
+export const BOOTH_COLLEGE_LABELS: Record<BoothCollege, string> = {
+  HUMANITIES: '인문대학',
+  BUSINESS: '경영대학',
+  LIFE: '생활과학대학',
+  ICT: 'ICT융합대학',
+  DESIGN: '조형예술대학',
+  MUSIC: '음악대학',
+  ENGINEERING: '공과대학',
+}
+
+export const BOOTH_COLLEGE_VALUES = Object.keys(BOOTH_COLLEGE_LABELS) as BoothCollege[]
 
 export interface BoothSummary {
   boothId: number
   name: string
-  department?: string
-  description?: string
   imageUrl?: string
+  college?: BoothCollege
 }
 
 export interface BoothDetail extends BoothSummary {
   description: string
   notice?: string
+  college: BoothCollege
+  collegeLabel?: string
 }
 
 export interface BoothCreateInput {
   name: string
   description: string
   imageUrl?: string
-  notice?: string
+  college: BoothCollege
 }
 
 export type BoothUpdateInput = Partial<BoothCreateInput>
 
-export type BoothMenuStatus = '판매 중' | '품절' | string
+export type BoothMenuStatus = 'ON_SALE' | 'SOLD_OUT'
+
+export const BOOTH_MENU_STATUS_LABELS: Record<BoothMenuStatus, string> = {
+  ON_SALE: '판매 중',
+  SOLD_OUT: '품절',
+}
 
 export interface BoothMenu {
   menuId: number
   name: string
   price: number
-  description?: string
   imageUrl?: string
   status: BoothMenuStatus
 }
@@ -46,43 +68,47 @@ export interface BoothMenu {
 export interface BoothMenuCreateInput {
   name: string
   price: number
-  description: string
   imageUrl?: string
-  status: BoothMenuStatus
 }
 
 export type BoothMenuUpdateInput = Partial<BoothMenuCreateInput>
 
 export const getBooths = () =>
-  USE_MOCK ? mockGetBooths() : api.get<BoothSummary[]>('/api/booths')
+  USE_MOCK ? mockGetBooths() : api.get<BoothSummary[]>('/api/admin/booths')
 
 export const getBoothDetail = (boothId: number) =>
-  USE_MOCK ? mockGetBoothDetail(boothId) : api.get<BoothDetail>(`/api/booths/${boothId}`)
+  USE_MOCK ? mockGetBoothDetail(boothId) : api.get<BoothDetail>(`/api/admin/booths/${boothId}`)
 
 export const createBooth = (data: BoothCreateInput) =>
-  USE_MOCK ? mockCreateBooth(data) : api.post<BoothDetail>('/admin/booths', data)
+  USE_MOCK ? mockCreateBooth(data) : api.post<BoothDetail>('/api/admin/booths', data)
 
 export const updateBooth = (boothId: number, data: BoothUpdateInput) =>
   USE_MOCK
     ? mockUpdateBooth(boothId, data)
-    : api.patch<BoothDetail>(`/admin/booths/${boothId}`, data)
+    : api.patch<BoothDetail>(`/api/admin/booths/${boothId}`, data)
+
+export const deleteBooth = (boothId: number) =>
+  USE_MOCK ? mockDeleteBooth(boothId) : api.delete<void>(`/api/admin/booths/${boothId}`)
 
 export const getBoothMenu = (boothId: number) =>
-  USE_MOCK ? mockGetBoothMenu(boothId) : api.get<BoothMenu[]>(`/api/booths/${boothId}/menu`)
+  USE_MOCK ? mockGetBoothMenu(boothId) : api.get<BoothMenu[]>(`/api/admin/booths/${boothId}/menus`)
 
 export const createBoothMenu = (boothId: number, data: BoothMenuCreateInput) =>
   USE_MOCK
     ? mockCreateBoothMenu(boothId, data)
-    : api.post<BoothMenu>(`/admin/booths/${boothId}/menu`, data)
+    : api.post<BoothMenu>(`/api/admin/booths/${boothId}/menus`, data)
 
-export const updateBoothMenu = (
-  boothId: number,
-  menuId: number,
-  data: BoothMenuUpdateInput,
-) =>
+export const updateBoothMenu = (boothId: number, menuId: number, data: BoothMenuUpdateInput) =>
   USE_MOCK
     ? mockUpdateBoothMenu(boothId, menuId, data)
-    : api.patch<BoothMenu>(`/admin/booths/${boothId}/menu/${menuId}`, data)
+    : api.patch<BoothMenu>(`/api/admin/booths/${boothId}/menus/${menuId}`, data)
 
 export const deleteBoothMenu = (boothId: number, menuId: number) =>
-  api.delete(`/admin/booths/${boothId}/menu/${menuId}`)
+  USE_MOCK
+    ? mockDeleteBoothMenu(boothId, menuId)
+    : api.delete<void>(`/api/admin/booths/${boothId}/menus/${menuId}`)
+
+export const updateBoothMenuStatus = (boothId: number, menuId: number, status: BoothMenuStatus) =>
+  USE_MOCK
+    ? mockUpdateBoothMenuStatus(boothId, menuId, status)
+    : api.patch<BoothMenu>(`/api/admin/booths/${boothId}/menus/${menuId}/status`, { status })

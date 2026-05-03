@@ -1,13 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import ErrorBoundary from './components/ErrorBoundary'
+import PrivateRoute from './components/PrivateRoute'
 import Login from './pages/Login'
 import Booth from './pages/Booth'
 import General from './pages/General'
-import { ReactNode } from 'react'
-
-function PrivateRoute({ children }: { children: ReactNode }) {
-  return <>{children}</>
-}
 
 function AppRoutes() {
   return (
@@ -17,7 +14,7 @@ function AppRoutes() {
       <Route
         path="/booth"
         element={
-          <PrivateRoute>
+          <PrivateRoute requiredRole="booth">
             <Booth />
           </PrivateRoute>
         }
@@ -25,7 +22,7 @@ function AppRoutes() {
       <Route
         path="/general"
         element={
-          <PrivateRoute>
+          <PrivateRoute requiredRole="general">
             <General />
           </PrivateRoute>
         }
@@ -36,10 +33,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }

@@ -1,9 +1,8 @@
 import type {
   LostItemCreateInput,
   LostItemDetail,
-  LostItemStatusUpdateInput,
-  LostItemStatusUpdateResponse,
   LostItemSummary,
+  LostItemUpdateInput,
 } from '../lost'
 import { mockResponse } from '../env'
 import { loadStore, nextId, saveStore } from './store'
@@ -11,22 +10,52 @@ import { loadStore, nextId, saveStore } from './store'
 const KEY = 'lost_items'
 
 const seed: LostItemDetail[] = [
-  { lostItemId: 1, name: '에어팟 프로', description: '학생회관 1층에서 습득', storageLocation: '학생회관 보관함', status: 'STORED', imageUrl: '' },
-  { lostItemId: 2, name: '검정 지갑', description: '야외 공연장 벤치', storageLocation: '학생회관 보관함', status: 'STORED', imageUrl: '' },
-  { lostItemId: 3, name: '아이패드', description: '중앙도서관 앞', storageLocation: '학생회관 보관함', status: 'STORED', imageUrl: '' },
-  { lostItemId: 4, name: '학생증', description: '주인 찾음', storageLocation: '학생회관 보관함', status: 'CLAIMED', imageUrl: '' },
+  {
+    lostItemId: 1,
+    name: '에어팟 프로',
+    description: '학생회관 1층에서 습득',
+    status: 'STORED',
+    category: 'ELECTRONICS',
+    imageUrl: '',
+  },
+  {
+    lostItemId: 2,
+    name: '검정 지갑',
+    description: '야외 공연장 벤치',
+    status: 'STORED',
+    category: 'WALLET_CARD',
+    imageUrl: '',
+  },
+  {
+    lostItemId: 3,
+    name: '아이패드',
+    description: '중앙도서관 앞',
+    status: 'STORED',
+    category: 'ELECTRONICS',
+    imageUrl: '',
+  },
+  {
+    lostItemId: 4,
+    name: '학생증',
+    description: '주인 찾음',
+    status: 'CLAIMED',
+    category: 'WALLET_CARD',
+    imageUrl: '',
+  },
 ]
 
 let store: LostItemDetail[] = loadStore<LostItemDetail[]>(KEY, seed)
 
-function persist() { saveStore(KEY, store) }
+function persist() {
+  saveStore(KEY, store)
+}
 
 function toSummary(l: LostItemDetail): LostItemSummary {
   return {
     lostItemId: l.lostItemId,
     name: l.name,
-    storageLocation: l.storageLocation,
     status: l.status,
+    category: l.category,
     imageUrl: l.imageUrl,
   }
 }
@@ -44,6 +73,7 @@ export const mockCreateLostItem = (data: LostItemCreateInput) => {
     lostItemId: nextId(store as unknown as { [k: string]: unknown }[], 'lostItemId'),
     name: data.name,
     description: data.description,
+    category: data.category,
     status: 'STORED',
     imageUrl: data.imageUrl ?? '',
   }
@@ -52,17 +82,18 @@ export const mockCreateLostItem = (data: LostItemCreateInput) => {
   return mockResponse<LostItemDetail>(created)
 }
 
-export const mockUpdateLostItemStatus = (
-  lostItemId: number,
-  data: LostItemStatusUpdateInput,
-) => {
+export const mockUpdateLostItem = (lostItemId: number, data: LostItemUpdateInput) => {
   const idx = store.findIndex((x) => x.lostItemId === lostItemId)
   if (idx < 0) return Promise.reject(new Error('LostItem not found'))
-  store[idx] = { ...store[idx], status: data.status }
+  store[idx] = { ...store[idx], ...data }
   persist()
-  return mockResponse<LostItemStatusUpdateResponse>({
-    lostItemId,
-    status: data.status,
-    updatedAt: new Date().toISOString(),
-  })
+  return mockResponse<LostItemDetail>(store[idx])
+}
+
+export const mockDeleteLostItem = (lostItemId: number) => {
+  const before = store.length
+  store = store.filter((x) => x.lostItemId !== lostItemId)
+  if (store.length === before) return Promise.reject(new Error('LostItem not found'))
+  persist()
+  return mockResponse<void>(undefined as unknown as void)
 }
