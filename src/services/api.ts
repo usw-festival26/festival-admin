@@ -1,7 +1,9 @@
-import axios, { AxiosError } from 'axios'
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import { ROLE_STORAGE_KEY } from './env'
 
 const baseURL = import.meta.env.VITE_API_URL ?? ''
+
+const CSRF_SAFE_METHODS = new Set(['get', 'head', 'options'])
 
 const api = axios.create({
   baseURL,
@@ -9,6 +11,20 @@ const api = axios.create({
   withCredentials: true,
   xsrfCookieName: 'XSRF-TOKEN',
   xsrfHeaderName: 'X-XSRF-TOKEN',
+})
+
+// CSRF 헤더 이름 검증용: axios 자동 부착(X-XSRF-TOKEN) 외에 흔한 변형(X-CSRF-TOKEN)도
+// 같이 보내 어느 이름을 백엔드가 받는지 판별. 검증 후 제거.
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const method = (config.method ?? 'get').toLowerCase()
+  if (CSRF_SAFE_METHODS.has(method)) return config
+  const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)
+  if (match) {
+    const token = decodeURIComponent(match[1])
+    config.headers.set('X-XSRF-TOKEN', token)
+    config.headers.set('X-CSRF-TOKEN', token)
+  }
+  return config
 })
 
 api.interceptors.response.use(
