@@ -13,16 +13,14 @@ const api = axios.create({
   xsrfHeaderName: 'X-XSRF-TOKEN',
 })
 
-// CSRF 헤더 이름 검증용: axios 자동 부착(X-XSRF-TOKEN) 외에 흔한 변형(X-CSRF-TOKEN)도
-// 같이 보내 어느 이름을 백엔드가 받는지 판별. 검증 후 제거.
+// axios 내장 xsrf 처리가 cross-origin 환경에서 누락될 가능성에 대비한 fallback.
+// document.cookie에서 직접 읽어 X-XSRF-TOKEN을 명시 부착.
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const method = (config.method ?? 'get').toLowerCase()
   if (CSRF_SAFE_METHODS.has(method)) return config
   const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)
   if (match) {
-    const token = decodeURIComponent(match[1])
-    config.headers.set('X-XSRF-TOKEN', token)
-    config.headers.set('X-CSRF-TOKEN', token)
+    config.headers.set('X-XSRF-TOKEN', decodeURIComponent(match[1]))
   }
   return config
 })
