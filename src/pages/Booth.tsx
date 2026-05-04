@@ -10,7 +10,6 @@ import {
   BOOTH_COLLEGE_VALUES,
   createBooth,
   createBoothMenu,
-  deleteBooth,
   deleteBoothMenu,
   getBoothDetail,
   getBoothMenu,
@@ -213,24 +212,6 @@ export default function Booth() {
     }
   }
 
-  const handleBoothDelete = async () => {
-    if (!editingBooth) return
-    if (!window.confirm('이 부스를 삭제하시겠어요? 등록된 메뉴도 함께 삭제됩니다.')) return
-    setBoothError('')
-    setBoothSubmitting(true)
-    try {
-      await deleteBooth(editingBooth.boothId)
-      const oldPath = pathFromPublicUrl(editingBooth.imageUrl)
-      if (oldPath) removeImage(oldPath).catch(() => {})
-      setBoothModalOpen(false)
-      resetBoothForm()
-      refreshBooths()
-    } catch (err) {
-      setBoothError(err instanceof Error ? err.message : '삭제에 실패했습니다.')
-    } finally {
-      setBoothSubmitting(false)
-    }
-  }
 
   const handleMenuSubmit = async (e: FormEvent) => {
     e.preventDefault()

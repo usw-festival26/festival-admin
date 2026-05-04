@@ -98,10 +98,16 @@ export default function General() {
   const handleNoticeDelete = async () => {
     if (!editingNotice) return
     if (!window.confirm('이 공지를 삭제하시겠어요?')) return
-    await deleteNotice(editingNotice.noticeId)
-    setNoticeModalOpen(false)
-    resetNoticeForm()
-    refreshNotices()
+    setNoticeError('')
+    try {
+      await deleteNotice(editingNotice.noticeId)
+      setNoticeModalOpen(false)
+      resetNoticeForm()
+      refreshNotices()
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } }
+      setNoticeError(axiosErr?.response?.data?.message ?? '삭제에 실패했습니다.')
+    }
   }
 
   const resetLostForm = () => {
