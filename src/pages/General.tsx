@@ -6,7 +6,6 @@ import {
   NoticeSummary,
   createNotice,
   deleteNotice,
-  getNoticeDetail,
   getNotices,
   updateNotice,
 } from '../services/notice'
@@ -65,12 +64,13 @@ export default function General() {
     setNoticeModalOpen(true)
   }
 
-  const openEditNotice = async (noticeId: number) => {
-    const res = await getNoticeDetail(noticeId)
-    setEditingNotice(res.data)
-    setNoticeTitle(res.data.title)
-    setNoticeContent(res.data.content)
-    setNoticePinned(res.data.pinned)
+  const openEditNotice = (noticeId: number) => {
+    const summary = notices.find((n) => n.noticeId === noticeId)
+    if (!summary) return
+    setEditingNotice({ ...summary, content: '' })
+    setNoticeTitle(summary.title)
+    setNoticeContent('')
+    setNoticePinned(summary.pinned)
     setNoticeModalOpen(true)
   }
 
