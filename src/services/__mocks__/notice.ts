@@ -34,22 +34,7 @@ function persist() {
   saveStore(KEY, store)
 }
 
-function toSummary(n: NoticeDetail): NoticeSummary {
-  return {
-    noticeId: n.noticeId,
-    title: n.title,
-    pinned: n.pinned,
-    createdAt: n.createdAt,
-  }
-}
-
-export const mockGetNotices = () => mockResponse<NoticeSummary[]>(store.map(toSummary))
-
-export const mockGetNoticeDetail = (noticeId: number) => {
-  const n = store.find((x) => x.noticeId === noticeId)
-  if (!n) return Promise.reject(new Error('Notice not found'))
-  return mockResponse<NoticeDetail>(n)
-}
+export const mockGetNotices = () => mockResponse<NoticeSummary[]>(store)
 
 export const mockCreateNotice = (data: NoticeSaveInput) => {
   const created: NoticeDetail = {

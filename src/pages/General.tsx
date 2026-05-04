@@ -65,12 +65,12 @@ export default function General() {
   }
 
   const openEditNotice = (noticeId: number) => {
-    const summary = notices.find((n) => n.noticeId === noticeId)
-    if (!summary) return
-    setEditingNotice({ ...summary, content: '' })
-    setNoticeTitle(summary.title)
-    setNoticeContent('')
-    setNoticePinned(summary.pinned)
+    const notice = notices.find((n) => n.noticeId === noticeId)
+    if (!notice) return
+    setEditingNotice(notice)
+    setNoticeTitle(notice.title)
+    setNoticeContent(notice.content)
+    setNoticePinned(notice.pinned)
     setNoticeModalOpen(true)
   }
 
