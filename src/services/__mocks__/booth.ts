@@ -19,6 +19,7 @@ const boothSeed: BoothDetail[] = [
     boothId: 1,
     name: '모여봐요 미대의 숲',
     description: '디자인학부 전시/체험 부스',
+    college: 'DESIGN',
     imageUrl: '',
     notice: '재료 소진 시 조기 마감합니다.',
   },
@@ -26,6 +27,7 @@ const boothSeed: BoothDetail[] = [
     boothId: 2,
     name: '컴공 떡볶이집',
     description: '컴퓨터공학과 먹거리 부스',
+    college: 'ICT',
     imageUrl: '',
     notice: '',
   },
@@ -33,6 +35,7 @@ const boothSeed: BoothDetail[] = [
     boothId: 3,
     name: '경영학부 포차',
     description: '경영학부 주점',
+    college: 'BUSINESS',
     imageUrl: '',
     notice: '',
   },
@@ -78,6 +81,7 @@ export const mockCreateBooth = (data: BoothCreateInput) => {
     boothId: nextId(boothStore as unknown as { [k: string]: unknown }[], 'boothId'),
     name: data.name,
     description: data.description,
+    college: data.college,
     imageUrl: data.imageUrl,
   }
   boothStore = [...boothStore, created]
