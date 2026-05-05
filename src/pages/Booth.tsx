@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState, memo } from 'react'
+import { FormEvent, useEffect, useRef, useState, memo } from 'react'
 import Layout from '../components/Layout'
 import Modal from '../components/Modal'
 import {
@@ -114,6 +114,7 @@ export default function Booth() {
   const [menuError, setMenuError] = useState('')
   const [menuSuccess, setMenuSuccess] = useState(false)
   const [menuSubmitting, setMenuSubmitting] = useState(false)
+  const menuSuccessTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const refreshBooths = () => getBooths().then((res) => setBooths(res.data))
   const refreshMenus = (boothId: number) => getBoothMenu(boothId).then((res) => setMenus(res.data))
@@ -214,37 +215,47 @@ export default function Booth() {
     e.preventDefault()
     if (selectedBoothId == null) return
     setMenuError('')
-    setMenuSubmitting(true)
     const all = menuItems.filter((m) => m.name.trim())
-    try {
-      for (const m of all) {
-        let uploaded: UploadedImage | null = null
-        try {
-          if (m.image) uploaded = await uploadImage(m.image, 'menus')
-          await createBoothMenu(selectedBoothId, {
-            name: m.name,
-            price: Number(m.price.replace(/[^0-9]/g, '')) || 0,
-            imageUrl: uploaded?.publicUrl,
-          })
-        } catch (err) {
-          if (uploaded) removeImage(uploaded.path).catch(() => {})
-          throw err
-        }
+    if (all.length === 0) return
+    setMenuSubmitting(true)
+
+    const failed: MenuItem[] = []
+    let lastErr: unknown = null
+
+    for (const m of all) {
+      let uploaded: UploadedImage | null = null
+      try {
+        if (m.image) uploaded = await uploadImage(m.image, 'menus')
+        await createBoothMenu(selectedBoothId, {
+          name: m.name,
+          price: Number(m.price.replace(/[^0-9]/g, '')) || 0,
+          imageUrl: uploaded?.publicUrl,
+        })
+      } catch (err) {
+        if (uploaded) removeImage(uploaded.path).catch(() => {})
+        failed.push(m)
+        lastErr = err
       }
-      resetMenuForm()
-      refreshMenus(selectedBoothId)
+    }
+
+    refreshMenus(selectedBoothId)
+
+    if (failed.length === 0) {
+      setMenuItems([emptyItem()])
+      if (menuSuccessTimer.current) clearTimeout(menuSuccessTimer.current)
       setMenuSuccess(true)
-      setTimeout(() => setMenuSuccess(false), 3000)
-    } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string; code?: string } } }
+      menuSuccessTimer.current = setTimeout(() => setMenuSuccess(false), 3000)
+    } else {
+      setMenuItems(failed.length < all.length ? failed : [...failed])
+      const axiosErr = lastErr as { response?: { data?: { message?: string; code?: string } } }
       const msg =
         axiosErr?.response?.data?.message ||
         axiosErr?.response?.data?.code ||
-        (err instanceof Error ? err.message : '메뉴 등록에 실패했습니다.')
-      setMenuError(msg)
-    } finally {
-      setMenuSubmitting(false)
+        (lastErr instanceof Error ? lastErr.message : '메뉴 등록에 실패했습니다.')
+      setMenuError(failed.length < all.length ? `일부 메뉴 등록에 실패했습니다: ${msg}` : msg)
     }
+
+    setMenuSubmitting(false)
   }
 
   const toggleSoldOut = async (menu: BoothMenu) => {
