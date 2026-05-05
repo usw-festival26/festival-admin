@@ -110,10 +110,9 @@ export default function Booth() {
   const [editingBooth, setEditingBooth] = useState<BoothDetail | null>(null)
 
   const [menuModalOpen, setMenuModalOpen] = useState(false)
-  const [mainMenus, setMainMenus] = useState<MenuItem[]>([emptyItem()])
-  const [subMenus, setSubMenus] = useState<MenuItem[]>([emptyItem()])
-  const [setMenuItems, setSetMenuItems] = useState<MenuItem[]>([emptyItem()])
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([emptyItem()])
   const [menuError, setMenuError] = useState('')
+  const [menuSuccess, setMenuSuccess] = useState(false)
   const [menuSubmitting, setMenuSubmitting] = useState(false)
 
   const refreshBooths = () => getBooths().then((res) => setBooths(res.data))
@@ -130,9 +129,7 @@ export default function Booth() {
   }
 
   const resetMenuForm = () => {
-    setMainMenus([emptyItem()])
-    setSubMenus([emptyItem()])
-    setSetMenuItems([emptyItem()])
+    setMenuItems([emptyItem()])
   }
 
   const resetBoothForm = () => {
@@ -218,7 +215,7 @@ export default function Booth() {
     if (selectedBoothId == null) return
     setMenuError('')
     setMenuSubmitting(true)
-    const all = [...mainMenus, ...subMenus, ...setMenuItems].filter((m) => m.name.trim())
+    const all = menuItems.filter((m) => m.name.trim())
     try {
       for (const m of all) {
         let uploaded: UploadedImage | null = null
@@ -236,6 +233,8 @@ export default function Booth() {
       }
       resetMenuForm()
       refreshMenus(selectedBoothId)
+      setMenuSuccess(true)
+      setTimeout(() => setMenuSuccess(false), 3000)
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string; code?: string } } }
       const msg =
@@ -420,6 +419,7 @@ export default function Booth() {
           setMenuModalOpen(false)
           resetMenuForm()
           setMenuError('')
+          setMenuSuccess(false)
         }}
         title="부스 메뉴 등록"
         description="축제에 참여하는 부스의 상세 정보를 입력해주세요"
@@ -435,13 +435,7 @@ export default function Booth() {
         >
           {selectedBooth && <div className="booth-name-badge">{selectedBooth.name}</div>}
 
-          <MenuCategorySection label="부스 메인메뉴" items={mainMenus} setItems={setMainMenus} />
-          <MenuCategorySection label="부스 서브메뉴" items={subMenus} setItems={setSubMenus} />
-          <MenuCategorySection
-            label="부스 세트메뉴"
-            items={setMenuItems}
-            setItems={setSetMenuItems}
-          />
+          <MenuCategorySection label="메뉴" items={menuItems} setItems={setMenuItems} />
 
           {menus.length > 0 && (
             <div className="form-group">
@@ -483,6 +477,11 @@ export default function Booth() {
             </div>
           )}
 
+          {menuSuccess && (
+            <p style={{ color: '#22c55e', fontSize: 13, margin: '4px 0', fontWeight: 600 }}>
+              메뉴가 등록되었습니다.
+            </p>
+          )}
           {menuError && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{menuError}</p>}
           <button type="submit" className="btn-black btn-block" disabled={menuSubmitting}>
             {menuSubmitting ? '등록 중…' : '등록하기'}
