@@ -16,13 +16,13 @@ import {
 export type BoothCollege = 'HUMANITIES' | 'BUSINESS' | 'LIFE' | 'ICT' | 'DESIGN' | 'MUSIC' | 'ENGINEERING'
 
 export const BOOTH_COLLEGE_LABELS: Record<BoothCollege, string> = {
-  HUMANITIES: '인문대학',
-  BUSINESS: '경영대학',
-  LIFE: '생활과학대학',
-  ICT: 'ICT융합대학',
-  DESIGN: '조형예술대학',
-  MUSIC: '음악대학',
-  ENGINEERING: '공과대학',
+  HUMANITIES: '인문사회융합대학',
+  BUSINESS: '경영공학대학',
+  LIFE: '라이프케어사이언스대학',
+  ICT: '지능형SW융합대학',
+  DESIGN: '디자인앤아트대학',
+  MUSIC: '음악테크노로지대학',
+  ENGINEERING: '혁신공과대학',
 }
 
 export const BOOTH_COLLEGE_VALUES = Object.keys(BOOTH_COLLEGE_LABELS) as BoothCollege[]

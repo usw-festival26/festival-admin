@@ -77,6 +77,15 @@ export default function General() {
   const handleNoticeSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setNoticeError('')
+    if (noticePinned) {
+      const otherPinnedCount = notices.filter(
+        (n) => n.pinned && n.noticeId !== editingNotice?.noticeId,
+      ).length
+      if (otherPinnedCount >= 5) {
+        setNoticeError('상단 고정은 최대 5개까지 가능합니다.')
+        return
+      }
+    }
     try {
       if (editingNotice) {
         await updateNotice(editingNotice.noticeId, {
