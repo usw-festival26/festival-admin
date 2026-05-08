@@ -277,8 +277,7 @@ export default function Booth() {
     <Layout>
       <section className="dashboard-body">
         <div className="hero-section">
-          <h1>2026 대동제 TITLE</h1>
-          <p>Go ahead and say just a little more about what this is</p>
+          <img src="/subtitle.webp" alt="깊은 밤, 가장 빛나는 순간" style={{ height: 32, width: 'auto' }} />
         </div>
 
         <div className="booth-container">
