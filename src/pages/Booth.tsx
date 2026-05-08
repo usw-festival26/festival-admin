@@ -261,8 +261,19 @@ export default function Booth() {
   const toggleSoldOut = async (menu: BoothMenu) => {
     if (selectedBoothId == null) return
     const next = menu.status === 'SOLD_OUT' ? 'ON_SALE' : 'SOLD_OUT'
-    await updateBoothMenuStatus(selectedBoothId, menu.menuId, next)
-    refreshMenus(selectedBoothId)
+    setMenus((prev) => prev.map((m) => (m.menuId === menu.menuId ? { ...m, status: next } : m)))
+    try {
+      await updateBoothMenuStatus(selectedBoothId, menu.menuId, next)
+      refreshMenus(selectedBoothId)
+    } catch (err) {
+      setMenus((prev) => prev.map((m) => (m.menuId === menu.menuId ? { ...m, status: menu.status } : m)))
+      const axiosErr = err as { response?: { data?: { message?: string; code?: string } } }
+      const msg =
+        axiosErr?.response?.data?.message ||
+        axiosErr?.response?.data?.code ||
+        (err instanceof Error ? err.message : '상태 변경에 실패했습니다.')
+      setMenuError(msg)
+    }
   }
 
   const handleDeleteMenu = async (menuId: number) => {
