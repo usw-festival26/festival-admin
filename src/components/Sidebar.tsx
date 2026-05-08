@@ -5,7 +5,7 @@ export default function Sidebar() {
     <nav className="sidebar">
       <div className="sidebar-header">
         <Link to="/" className="logo">
-          LOGO
+          <img src="/favicon.webp" alt="MIDNIGHT" style={{ width: 80, height: 'auto' }} />
         </Link>
       </div>
     </nav>

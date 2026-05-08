@@ -1,11 +1,11 @@
 :root {
   --gray-bg: #e0e0e0;
-  --sidebar-color: #e0dcff;
+  --sidebar-color: #c8e4f8;
   --color-divider: #dbdbdb;
   --color-search-bg: #f1f1f5;
   --color-search-placeholder: #767676;
   --color-muted: #7d7d7d;
-  --color-brand-light: #e0dcff;
+  --color-brand-light: #c8e4f8;
   --color-error-bg: #ffbebe;
   --color-error-border: #ff6060;
   --color-error-text: #f81919;

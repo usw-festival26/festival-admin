@@ -77,6 +77,15 @@ export default function General() {
   const handleNoticeSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setNoticeError('')
+    if (noticePinned) {
+      const otherPinnedCount = notices.filter(
+        (n) => n.pinned && n.noticeId !== editingNotice?.noticeId,
+      ).length
+      if (otherPinnedCount >= 5) {
+        setNoticeError('상단 고정은 최대 5개까지 가능합니다.')
+        return
+      }
+    }
     try {
       if (editingNotice) {
         await updateNotice(editingNotice.noticeId, {
@@ -215,8 +224,7 @@ export default function General() {
     <Layout>
       <section className="dashboard-body scrollable">
         <div className="hero-section">
-          <h1>2026 대동제 TITLE</h1>
-          <p>Go ahead and say just a little more about what this is</p>
+          <img src="/subtitle.webp" alt="깊은 밤, 가장 빛나는 순간" style={{ height: 32, width: 'auto' }} />
         </div>
 
         {/* 공지 */}

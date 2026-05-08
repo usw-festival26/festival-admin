@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState, memo } from 'react'
+import { FormEvent, useEffect, useRef, useState, memo } from 'react'
 import Layout from '../components/Layout'
 import Modal from '../components/Modal'
 import {
@@ -110,11 +110,11 @@ export default function Booth() {
   const [editingBooth, setEditingBooth] = useState<BoothDetail | null>(null)
 
   const [menuModalOpen, setMenuModalOpen] = useState(false)
-  const [mainMenus, setMainMenus] = useState<MenuItem[]>([emptyItem()])
-  const [subMenus, setSubMenus] = useState<MenuItem[]>([emptyItem()])
-  const [setMenuItems, setSetMenuItems] = useState<MenuItem[]>([emptyItem()])
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([emptyItem()])
   const [menuError, setMenuError] = useState('')
+  const [menuSuccess, setMenuSuccess] = useState(false)
   const [menuSubmitting, setMenuSubmitting] = useState(false)
+  const menuSuccessTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const refreshBooths = () => getBooths().then((res) => setBooths(res.data))
   const refreshMenus = (boothId: number) => getBoothMenu(boothId).then((res) => setMenus(res.data))
@@ -130,9 +130,7 @@ export default function Booth() {
   }
 
   const resetMenuForm = () => {
-    setMainMenus([emptyItem()])
-    setSubMenus([emptyItem()])
-    setSetMenuItems([emptyItem()])
+    setMenuItems([emptyItem()])
   }
 
   const resetBoothForm = () => {
@@ -217,35 +215,47 @@ export default function Booth() {
     e.preventDefault()
     if (selectedBoothId == null) return
     setMenuError('')
+    const all = menuItems.filter((m) => m.name.trim())
+    if (all.length === 0) return
     setMenuSubmitting(true)
-    const all = [...mainMenus, ...subMenus, ...setMenuItems].filter((m) => m.name.trim())
-    try {
-      for (const m of all) {
-        let uploaded: UploadedImage | null = null
-        try {
-          if (m.image) uploaded = await uploadImage(m.image, 'menus')
-          await createBoothMenu(selectedBoothId, {
-            name: m.name,
-            price: Number(m.price.replace(/[^0-9]/g, '')) || 0,
-            imageUrl: uploaded?.publicUrl,
-          })
-        } catch (err) {
-          if (uploaded) removeImage(uploaded.path).catch(() => {})
-          throw err
-        }
+
+    const failed: MenuItem[] = []
+    let lastErr: unknown = null
+
+    for (const m of all) {
+      let uploaded: UploadedImage | null = null
+      try {
+        if (m.image) uploaded = await uploadImage(m.image, 'menus')
+        await createBoothMenu(selectedBoothId, {
+          name: m.name,
+          price: Number(m.price.replace(/[^0-9]/g, '')) || 0,
+          imageUrl: uploaded?.publicUrl,
+        })
+      } catch (err) {
+        if (uploaded) removeImage(uploaded.path).catch(() => {})
+        failed.push(m)
+        lastErr = err
       }
-      resetMenuForm()
-      refreshMenus(selectedBoothId)
-    } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string; code?: string } } }
+    }
+
+    refreshMenus(selectedBoothId)
+
+    if (failed.length === 0) {
+      setMenuItems([emptyItem()])
+      if (menuSuccessTimer.current) clearTimeout(menuSuccessTimer.current)
+      setMenuSuccess(true)
+      menuSuccessTimer.current = setTimeout(() => setMenuSuccess(false), 3000)
+    } else {
+      setMenuItems(failed.length < all.length ? failed : [...failed])
+      const axiosErr = lastErr as { response?: { data?: { message?: string; code?: string } } }
       const msg =
         axiosErr?.response?.data?.message ||
         axiosErr?.response?.data?.code ||
-        (err instanceof Error ? err.message : '메뉴 등록에 실패했습니다.')
-      setMenuError(msg)
-    } finally {
-      setMenuSubmitting(false)
+        (lastErr instanceof Error ? lastErr.message : '메뉴 등록에 실패했습니다.')
+      setMenuError(failed.length < all.length ? `일부 메뉴 등록에 실패했습니다: ${msg}` : msg)
     }
+
+    setMenuSubmitting(false)
   }
 
   const toggleSoldOut = async (menu: BoothMenu) => {
@@ -267,8 +277,7 @@ export default function Booth() {
     <Layout>
       <section className="dashboard-body">
         <div className="hero-section">
-          <h1>2026 대동제 TITLE</h1>
-          <p>Go ahead and say just a little more about what this is</p>
+          <img src="/subtitle.webp" alt="깊은 밤, 가장 빛나는 순간" style={{ height: 32, width: 'auto' }} />
         </div>
 
         <div className="booth-container">
@@ -420,6 +429,7 @@ export default function Booth() {
           setMenuModalOpen(false)
           resetMenuForm()
           setMenuError('')
+          setMenuSuccess(false)
         }}
         title="부스 메뉴 등록"
         description="축제에 참여하는 부스의 상세 정보를 입력해주세요"
@@ -435,13 +445,7 @@ export default function Booth() {
         >
           {selectedBooth && <div className="booth-name-badge">{selectedBooth.name}</div>}
 
-          <MenuCategorySection label="부스 메인메뉴" items={mainMenus} setItems={setMainMenus} />
-          <MenuCategorySection label="부스 서브메뉴" items={subMenus} setItems={setSubMenus} />
-          <MenuCategorySection
-            label="부스 세트메뉴"
-            items={setMenuItems}
-            setItems={setSetMenuItems}
-          />
+          <MenuCategorySection label="메뉴" items={menuItems} setItems={setMenuItems} />
 
           {menus.length > 0 && (
             <div className="form-group">
@@ -483,6 +487,11 @@ export default function Booth() {
             </div>
           )}
 
+          {menuSuccess && (
+            <p style={{ color: '#22c55e', fontSize: 13, margin: '4px 0', fontWeight: 600 }}>
+              메뉴가 등록되었습니다.
+            </p>
+          )}
           {menuError && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{menuError}</p>}
           <button type="submit" className="btn-black btn-block" disabled={menuSubmitting}>
             {menuSubmitting ? '등록 중…' : '등록하기'}
