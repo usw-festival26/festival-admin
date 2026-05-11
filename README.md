@@ -7,7 +7,7 @@
 - **담당 파트**: 프론트엔드 (관리자 페이지)
 - **주요 스택**: React 18, TypeScript, Vite, React Router v6
 - **배포**: Cloudflare Pages
-- **디자인**: Figma (대동제 TF 피그마)
+- **디자인**: Figma (대동제 TF 피그마) 
 
 ## 🏗️ 폴더 구조
 
